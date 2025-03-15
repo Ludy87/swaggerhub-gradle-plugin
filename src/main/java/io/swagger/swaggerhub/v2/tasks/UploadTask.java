@@ -40,162 +40,47 @@ import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFile;
+import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.Optional;
 import org.gradle.api.tasks.TaskAction;
 
+import io.swagger.swaggerhub.v2.DebugLogger;
 import io.swagger.swaggerhub.v2.client.SwaggerHubClient;
 import io.swagger.swaggerhub.v2.client.SwaggerHubRequest;
 
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 /** Uploads API definition to SwaggerHub */
 @Slf4j
+@Getter
+@Setter
 public class UploadTask extends DefaultTask {
-    private String owner;
-    private String api;
-    private String version;
-    private String token;
-    private String inputFile;
-    private boolean isPrivate = false; // Geändert zu boolean
-    private String host = "api.swaggerhub.com";
-    private Integer port = 443;
-    private String protocol = "https";
-    private String format = "json";
-    private String oas = "2.0";
-    private Boolean onPremise = false;
-    private String onPremiseAPISuffix = "v1";
+    @Input private String owner;
+    @Input private String api;
+    @Input private String version;
+    @Input private String token;
+    @InputFile private String inputFile;
+    @Input private Boolean isPrivate = false;
+    @Input @Optional private String host = "api.swaggerhub.com";
+    @Input @Optional private Integer port = 443;
+    @Input @Optional private String protocol = "https";
+    @Input @Optional private String format = "json";
+    @Input @Optional private String oas = "2.0";
+    @Input @Optional private Boolean onPremise = false;
+    @Input @Optional private String onPremiseAPISuffix = "v1";
 
-    private SwaggerHubClient swaggerHubClient;
-
-    @Input
-    public String getOwner() {
-        return owner;
-    }
-
-    public void setOwner(String owner) {
-        this.owner = owner;
-    }
-
-    @Input
-    public String getApi() {
-        return api;
-    }
-
-    public void setApi(String api) {
-        this.api = api;
-    }
-
-    @Input
-    public String getVersion() {
-        return version;
-    }
-
-    public void setVersion(String version) {
-        this.version = version;
-    }
-
-    @Input
-    public String getToken() {
-        return token;
-    }
-
-    public void setToken(String token) {
-        this.token = token;
-    }
-
-    @InputFile
-    public String getInputFile() {
-        return inputFile;
-    }
-
-    public void setInputFile(String inputFile) {
-        this.inputFile = inputFile;
-    }
-
-    @Input
-    public boolean isPrivate() {
-        return isPrivate;
-    }
-
-    public void isPrivate(boolean isPrivate) {
-        this.isPrivate = isPrivate;
-    }
-
-    @Input
-    @Optional
-    public String getHost() {
-        return host;
-    }
-
-    public void setHost(String host) {
-        this.host = host;
-    }
-
-    @Input
-    @Optional
-    public Integer getPort() {
-        return port;
-    }
-
-    public void setPort(Integer port) {
-        this.port = port;
-    }
-
-    @Input
-    @Optional
-    public String getProtocol() {
-        return protocol;
-    }
-
-    public void setProtocol(String protocol) {
-        this.protocol = protocol;
-    }
-
-    @Input
-    @Optional
-    public String getFormat() {
-        return format;
-    }
-
-    public void setFormat(String format) {
-        this.format = format;
-    }
-
-    @Input
-    @Optional
-    public String getOas() {
-        return oas;
-    }
-
-    public void setOas(String oas) {
-        this.oas = oas;
-    }
-
-    @Input
-    @Optional
-    public Boolean getOnPremise() {
-        return onPremise;
-    }
-
-    public void setOnPremise(Boolean onPremise) {
-        this.onPremise = onPremise;
-    }
-
-    @Input
-    @Optional
-    public String getOnPremiseAPISuffix() {
-        return onPremiseAPISuffix;
-    }
-
-    public void setOnPremiseAPISuffix(String onPremiseAPISuffix) {
-        this.onPremiseAPISuffix = onPremiseAPISuffix;
-    }
+    @Internal private SwaggerHubClient swaggerHubClient;
 
     @TaskAction
     public void uploadDefinition() throws GradleException {
 
+        // swaggerHubClient = SwaggerHubClient.create(host, port, protocol, token);
+
         swaggerHubClient =
-                new SwaggerHubClient(host, port, protocol, token, onPremise, onPremiseAPISuffix);
+                SwaggerHubClient.createOnPremise(
+                        host, port, protocol, token, onPremise, onPremiseAPISuffix);
 
         log.info(
                 "Uploading to {}: api: {}, owner: {}, version: {}, inputFile: {}, format: {},"
@@ -216,12 +101,19 @@ public class UploadTask extends DefaultTask {
                     new String(Files.readAllBytes(Paths.get(inputFile)), StandardCharsets.UTF_8);
 
             SwaggerHubRequest swaggerHubRequest =
-                    new SwaggerHubRequest.Builder(api, owner, version)
-                            .swagger(content)
+                    SwaggerHubRequest.builder()
+                            .api(api)
+                            .owner(owner)
+                            .version(version)
                             .format(format)
-                            .isPrivate(isPrivate)
+                            .swagger(content)
                             .oas(oas)
+                            .onPremise(onPremise)
+                            .onPremiseAPISuffix(onPremiseAPISuffix)
+                            .isPrivate(isPrivate)
                             .build();
+
+            DebugLogger.info("Uploading API definition: " + swaggerHubRequest);
 
             swaggerHubClient.saveDefinition(swaggerHubRequest);
         } catch (IOException | GradleException e) {

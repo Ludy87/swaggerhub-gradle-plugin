@@ -94,13 +94,36 @@ public class SwaggerHubUploadTest {
     }
 
     @Test
+    public void testUploadOnPremise() throws IOException, URISyntaxException {
+        copyInputFile(testInputAPI, testProjectDir.getRoot());
+        inputFile = getInputFilePath(testInputAPI);
+        swagger = Files.readString(inputFile, StandardCharsets.UTF_8);
+
+        SwaggerHubRequest request =
+                SwaggerHubRequest.builder()
+                        .api(api)
+                        .owner(owner)
+                        .version(version)
+                        .swagger(swagger)
+                        .build();
+
+        setupServerMocking(request, port, token);
+        assertEquals(SUCCESS, runBuild(request));
+    }
+
+    @Test
     public void testUpload() throws IOException, URISyntaxException {
         copyInputFile(testInputAPI, testProjectDir.getRoot());
         inputFile = getInputFilePath(testInputAPI);
-        swagger = new String(Files.readAllBytes(inputFile), StandardCharsets.UTF_8);
+        swagger = Files.readString(inputFile, StandardCharsets.UTF_8);
 
         SwaggerHubRequest request =
-                new SwaggerHubRequest.Builder(api, owner, version).swagger(swagger).build();
+                SwaggerHubRequest.builder()
+                        .api(api)
+                        .owner(owner)
+                        .version(version)
+                        .swagger(swagger)
+                        .build();
 
         setupServerMocking(request, port, token);
         assertEquals(SUCCESS, runBuild(request));
@@ -110,12 +133,15 @@ public class SwaggerHubUploadTest {
     public void testUploadPrivate() throws IOException, URISyntaxException {
         copyInputFile(testInputAPI, testProjectDir.getRoot());
         inputFile = getInputFilePath(testInputAPI);
-        swagger = new String(Files.readAllBytes(inputFile), StandardCharsets.UTF_8);
+        swagger = Files.readString(inputFile, StandardCharsets.UTF_8);
 
         SwaggerHubRequest request =
-                new SwaggerHubRequest.Builder(api, owner, version)
-                        .isPrivate(true)
+                SwaggerHubRequest.builder()
+                        .api(api)
+                        .owner(owner)
+                        .version(version)
                         .swagger(swagger)
+                        .isPrivate(true)
                         .build();
 
         setupServerMocking(request, port, token);
@@ -126,10 +152,15 @@ public class SwaggerHubUploadTest {
     public void testUploadPublic() throws IOException, URISyntaxException {
         copyInputFile(testInputAPI, testProjectDir.getRoot());
         inputFile = getInputFilePath(testInputAPI);
-        swagger = new String(Files.readAllBytes(inputFile), StandardCharsets.UTF_8);
+        swagger = Files.readString(inputFile, StandardCharsets.UTF_8);
 
         SwaggerHubRequest request =
-                new SwaggerHubRequest.Builder(api, owner, version).swagger(swagger).build();
+                SwaggerHubRequest.builder()
+                        .api(api)
+                        .owner(owner)
+                        .version(version)
+                        .swagger(swagger)
+                        .build();
 
         setupServerMocking(request, port, token);
         assertEquals(SUCCESS, runBuild(request));
@@ -140,10 +171,13 @@ public class SwaggerHubUploadTest {
         testInputAPI = "TestAPI.yaml";
         copyInputFile(testInputAPI, testProjectDir.getRoot());
         inputFile = getInputFilePath(testInputAPI);
-        swagger = new String(Files.readAllBytes(inputFile), StandardCharsets.UTF_8);
+        swagger = Files.readString(inputFile, StandardCharsets.UTF_8);
 
         SwaggerHubRequest request =
-                new SwaggerHubRequest.Builder(api, owner, version)
+                SwaggerHubRequest.builder()
+                        .api(api)
+                        .owner(owner)
+                        .version(version)
                         .format("yaml")
                         .swagger(swagger)
                         .build();
@@ -190,7 +224,7 @@ public class SwaggerHubUploadTest {
                         + request.getVersion()
                         + "'\n"
                         + getFormatSetting(request.getFormat())
-                        + getIsPrivateSetting(request.isPrivate())
+                        + getIsPrivateSetting(Boolean.TRUE.equals(request.getIsPrivate()))
                         + "    inputFile '"
                         + filePath
                         + "'\n"
@@ -204,13 +238,13 @@ public class SwaggerHubUploadTest {
 
     private String getIsPrivateSetting(Boolean isPrivate) {
         // false is default, so only include if set to true
-        return isPrivate ? String.format("   isPrivate %s\n", isPrivate) : "";
+        return isPrivate ? String.format("    isPrivate %s\n", isPrivate) : "";
     }
 
     private String getFormatSetting(String format) {
         // json is default, so only include if set to yaml
         return StringUtils.isNotBlank(format) && "yaml".equals(format)
-                ? String.format("   format '%s'\n", format)
+                ? String.format("    format '%s'\n", format)
                 : "";
     }
 
@@ -232,7 +266,7 @@ public class SwaggerHubUploadTest {
         String owner = request.getOwner();
         String version = request.getVersion();
         String format = request.getFormat();
-        String isPrivate = Boolean.toString(request.isPrivate());
+        String isPrivate = Boolean.toString(Boolean.TRUE.equals(request.getIsPrivate()));
 
         startMockServer(Integer.parseInt(port));
 

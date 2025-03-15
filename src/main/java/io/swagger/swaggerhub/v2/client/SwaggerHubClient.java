@@ -35,6 +35,12 @@ import java.io.IOException;
 
 import org.gradle.api.GradleException;
 
+import io.swagger.swaggerhub.v2.DebugLogger;
+
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NonNull;
+
 import okhttp3.HttpUrl;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
@@ -42,40 +48,54 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
+@Getter
+@Builder
 public class SwaggerHubClient {
     private static final String DOWNLOAD_FAILED_ERROR = "Failed to download API definition: ";
     private static final String UPLOAD_FAILED_ERROR = "Failed to upload API definition: ";
-    private final OkHttpClient client;
-    private final String host;
-    private final int port;
-    private final String token;
-    private final String protocol;
-    private final Boolean onPremise;
-    private final String onPremiseAPISuffix;
+    private static final OkHttpClient CLIENT = new OkHttpClient();
     private static final String APIS = "apis";
 
-    public SwaggerHubClient(
-            String host,
-            int port,
-            String protocol,
-            String token) { // TODO: Worth removing after due consideration
-        this(host, port, protocol, token, false, null);
+    @NonNull private final String host;
+    @NonNull private final String protocol;
+    private final String token;
+
+    private final int port;
+    private final Boolean onPremise;
+    private final String onPremiseAPISuffix;
+    private final OkHttpClient client;
+
+    public static SwaggerHubClient create(
+            String host, Integer port, String protocol, String token) {
+        return SwaggerHubClient.builder()
+                .host(host)
+                .port(port)
+                .protocol(protocol)
+                .token(token)
+                .onPremise(false)
+                .onPremiseAPISuffix(null)
+                .client(CLIENT)
+                .build();
     }
 
-    public SwaggerHubClient(
+    public static SwaggerHubClient createOnPremise(
             String host,
-            int port,
+            Integer port,
             String protocol,
             String token,
             Boolean onPremise,
             String onPremiseAPISuffix) {
-        client = new OkHttpClient();
-        this.host = host;
-        this.port = port;
-        this.protocol = protocol;
-        this.token = token;
-        this.onPremise = onPremise;
-        this.onPremiseAPISuffix = onPremiseAPISuffix;
+        SwaggerHubClient swaggweHubClient =
+                SwaggerHubClient.builder()
+                        .host(host)
+                        .port(port)
+                        .protocol(protocol)
+                        .token(token)
+                        .onPremise(onPremise != null ? onPremise : false)
+                        .onPremiseAPISuffix(onPremiseAPISuffix != null ? onPremiseAPISuffix : "v1")
+                        .client(CLIENT)
+                        .build();
+        return swaggweHubClient;
     }
 
     public String getDefinition(SwaggerHubRequest swaggerHubRequest) throws GradleException {
@@ -83,13 +103,14 @@ public class SwaggerHubClient {
         MediaType mediaType = getMediaType(swaggerHubRequest);
         Request requestBuilder = buildGetRequest(httpUrl, mediaType);
 
-        try (Response response = client.newCall(requestBuilder).execute()) {
-            if (response.body() == null) {
+        try (Response response = CLIENT.newCall(requestBuilder).execute()) {
+            String responseBody = response.body() != null ? response.body().string() : null;
+            if (responseBody == null) {
                 throw new GradleException(DOWNLOAD_FAILED_ERROR + "Response body is empty");
             } else if (!response.isSuccessful()) {
-                throw new GradleException(DOWNLOAD_FAILED_ERROR + response.body().string());
+                throw new GradleException(DOWNLOAD_FAILED_ERROR + responseBody);
             } else {
-                return response.body().string();
+                return responseBody;
             }
         } catch (IOException e) {
             throw new GradleException(DOWNLOAD_FAILED_ERROR, e);
@@ -110,10 +131,11 @@ public class SwaggerHubClient {
 
     public void saveDefinition(SwaggerHubRequest swaggerHubRequest) throws GradleException {
         HttpUrl httpUrl = getUploadUrl(swaggerHubRequest);
+        DebugLogger.info("httpUrl: " + httpUrl);
         MediaType mediaType = getMediaType(swaggerHubRequest);
         Request httpRequest = buildPostRequest(httpUrl, mediaType, swaggerHubRequest.getSwagger());
 
-        try (Response response = client.newCall(httpRequest).execute()) {
+        try (Response response = CLIENT.newCall(httpRequest).execute()) {
             if (response.body() == null) {
                 throw new GradleException(UPLOAD_FAILED_ERROR + "Response body is empty");
             } else if (!response.isSuccessful()) {
@@ -137,7 +159,7 @@ public class SwaggerHubClient {
     private HttpUrl getDownloadUrl(SwaggerHubRequest swaggerHubRequest) {
         return getBaseUrl(swaggerHubRequest.getOwner(), swaggerHubRequest.getApi())
                 .addEncodedPathSegment(swaggerHubRequest.getVersion())
-                .addQueryParameter("resolved", String.valueOf(swaggerHubRequest.resolved()))
+                .addQueryParameter("resolved", String.valueOf(swaggerHubRequest.getResolved()))
                 .build();
     }
 
@@ -145,7 +167,7 @@ public class SwaggerHubClient {
         return getBaseUrl(swaggerHubRequest.getOwner(), swaggerHubRequest.getApi())
                 .addEncodedQueryParameter("version", swaggerHubRequest.getVersion())
                 .addEncodedQueryParameter(
-                        "isPrivate", Boolean.toString(swaggerHubRequest.isPrivate()))
+                        "isPrivate", Boolean.toString(swaggerHubRequest.getIsPrivate()))
                 .addEncodedQueryParameter("oas", swaggerHubRequest.getOas())
                 .build();
     }

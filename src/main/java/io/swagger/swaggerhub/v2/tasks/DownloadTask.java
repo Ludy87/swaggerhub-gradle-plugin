@@ -40,150 +40,41 @@ import java.nio.file.Paths;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;
 import org.gradle.api.tasks.Input;
+import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.Optional;
 import org.gradle.api.tasks.TaskAction;
 
+import io.swagger.swaggerhub.v2.DebugLogger;
 import io.swagger.swaggerhub.v2.client.SwaggerHubClient;
 import io.swagger.swaggerhub.v2.client.SwaggerHubRequest;
 
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 /** Downloads API definition from SwaggerHub */
 @Slf4j
+@Getter
+@Setter
 public class DownloadTask extends DefaultTask {
-    private String owner;
-    private String api;
-    private String version;
-    private String token;
-    private String outputFile;
-    private String format = "json";
-    private String host = "api.swaggerhub.com";
-    private Integer port = 443;
-    private String protocol = "https";
-    private Boolean resolved = false;
-    private Boolean onPremise = false;
-    private String onPremiseAPISuffix = "v1";
+    @Input private String owner;
+    @Input private String api;
+    @Input private String version;
+    @Input @Optional private String token;
+    @Input private String outputFile;
+    @Input @Optional private String format = "json";
+    @Input @Optional private String host = "api.swaggerhub.com";
+    @Input @Optional private Integer port = 443;
+    @Input @Optional private String protocol = "https";
+    @Input @Optional private Boolean resolved = false;
+    @Input @Optional private Boolean onPremise = false;
+    @Input @Optional private String onPremiseAPISuffix = "v1";
 
-    @Input
-    public String getOwner() {
-        return owner;
-    }
-
-    public void setOwner(String owner) {
-        this.owner = owner;
-    }
-
-    @Input
-    public String getApi() {
-        return api;
-    }
-
-    public void setApi(String api) {
-        this.api = api;
-    }
-
-    @Input
-    public String getVersion() {
-        return version;
-    }
-
-    public void setVersion(String version) {
-        this.version = version;
-    }
-
-    @Input
-    public String getOutputFile() {
-        return outputFile;
-    }
-
-    public void setOutputFile(String outputFile) {
-        this.outputFile = outputFile;
-    }
-
-    @Input
-    @Optional
-    public String getHost() {
-        return host;
-    }
-
-    public void setHost(String host) {
-        this.host = host;
-    }
-
-    @Input
-    @Optional
-    public Integer getPort() {
-        return port;
-    }
-
-    public void setPort(Integer port) {
-        this.port = port;
-    }
-
-    @Input
-    @Optional
-    public String getProtocol() {
-        return protocol;
-    }
-
-    public void setProtocol(String protocol) {
-        this.protocol = protocol;
-    }
-
-    @Input
-    @Optional
-    public String getToken() {
-        return token;
-    }
-
-    public void setToken(String token) {
-        this.token = token;
-    }
-
-    @Input
-    @Optional
-    public String getFormat() {
-        return format;
-    }
-
-    public void setFormat(String format) {
-        this.format = format;
-    }
-
-    @Input
-    @Optional
-    public Boolean getResolved() {
-        return resolved;
-    }
-
-    public void setResolved(Boolean resolved) {
-        this.resolved = resolved;
-    }
-
-    @Input
-    @Optional
-    public Boolean getOnPremise() {
-        return onPremise;
-    }
-
-    public void setOnPremise(Boolean onPremise) {
-        this.onPremise = onPremise;
-    }
-
-    @Input
-    @Optional
-    public String getOnPremiseAPISuffix() {
-        return onPremiseAPISuffix;
-    }
-
-    public void setOnPremiseAPISuffix(String onPremiseAPISuffix) {
-        this.onPremiseAPISuffix = onPremiseAPISuffix;
-    }
+    @Internal private SwaggerHubClient swaggerHubClient;
 
     @TaskAction
     public void downloadDefinition() throws GradleException {
-        SwaggerHubClient swaggerHubClient =
-                new SwaggerHubClient(host, port, protocol, token, onPremise, onPremiseAPISuffix);
+        swaggerHubClient = SwaggerHubClient.create(host, port, protocol, token);
 
         log.info(
                 "Downloading from {}: api: {}, owner: {}, version: {}, format: {}, resolved: {},"
@@ -199,10 +90,15 @@ public class DownloadTask extends DefaultTask {
                 onPremiseAPISuffix);
 
         SwaggerHubRequest swaggerHubRequest =
-                new SwaggerHubRequest.Builder(api, owner, version)
+                SwaggerHubRequest.builder()
+                        .api(api)
+                        .owner(owner)
+                        .version(version)
                         .format(format)
                         .resolved(resolved)
                         .build();
+
+        DebugLogger.info("Downloading API definition: " + swaggerHubRequest);
 
         try {
             String swaggerJson = swaggerHubClient.getDefinition(swaggerHubRequest);
