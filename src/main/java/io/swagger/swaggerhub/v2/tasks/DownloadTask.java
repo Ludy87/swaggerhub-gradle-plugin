@@ -44,7 +44,6 @@ import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.Optional;
 import org.gradle.api.tasks.TaskAction;
 
-import io.swagger.swaggerhub.v2.DebugLogger;
 import io.swagger.swaggerhub.v2.client.SwaggerHubClient;
 import io.swagger.swaggerhub.v2.client.SwaggerHubRequest;
 

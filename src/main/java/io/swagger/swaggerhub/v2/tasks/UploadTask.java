@@ -44,7 +44,6 @@ import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.Optional;
 import org.gradle.api.tasks.TaskAction;
 
-import io.swagger.swaggerhub.v2.DebugLogger;
 import io.swagger.swaggerhub.v2.client.SwaggerHubClient;
 import io.swagger.swaggerhub.v2.client.SwaggerHubRequest;
 
@@ -77,6 +76,13 @@ public class UploadTask extends DefaultTask {
     public void uploadDefinition() throws GradleException {
 
         // swaggerHubClient = SwaggerHubClient.create(host, port, protocol, token);
+        try {
+            if (Files.notExists(Paths.get(inputFile))) {
+                Files.createFile(Paths.get(inputFile).toAbsolutePath().normalize());
+            }
+        } catch (IOException e) {
+            throw new GradleException(e.getMessage(), e);
+        }
 
         swaggerHubClient =
                 SwaggerHubClient.createOnPremise(

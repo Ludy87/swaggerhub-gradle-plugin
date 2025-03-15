@@ -35,8 +35,6 @@ import java.io.IOException;
 
 import org.gradle.api.GradleException;
 
-import io.swagger.swaggerhub.v2.DebugLogger;
-
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NonNull;
