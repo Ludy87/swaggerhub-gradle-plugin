@@ -131,7 +131,6 @@ public class SwaggerHubClient {
 
     public void saveDefinition(SwaggerHubRequest swaggerHubRequest) throws GradleException {
         HttpUrl httpUrl = getUploadUrl(swaggerHubRequest);
-        DebugLogger.info("httpUrl: " + httpUrl);
         MediaType mediaType = getMediaType(swaggerHubRequest);
         Request httpRequest = buildPostRequest(httpUrl, mediaType, swaggerHubRequest.getSwagger());
 

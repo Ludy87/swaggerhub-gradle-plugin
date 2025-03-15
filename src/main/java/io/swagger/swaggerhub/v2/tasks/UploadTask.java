@@ -113,8 +113,6 @@ public class UploadTask extends DefaultTask {
                             .isPrivate(isPrivate)
                             .build();
 
-            DebugLogger.info("Uploading API definition: " + swaggerHubRequest);
-
             swaggerHubClient.saveDefinition(swaggerHubRequest);
         } catch (IOException | GradleException e) {
             throw new GradleException(e.getMessage(), e);

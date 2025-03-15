@@ -98,8 +98,6 @@ public class DownloadTask extends DefaultTask {
                         .resolved(resolved)
                         .build();
 
-        DebugLogger.info("Downloading API definition: " + swaggerHubRequest);
-
         try {
             String swaggerJson = swaggerHubClient.getDefinition(swaggerHubRequest);
             File file = new File(outputFile);
