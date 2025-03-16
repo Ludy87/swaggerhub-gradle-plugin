@@ -4,6 +4,14 @@ plugins {
     id "com.diffplug.spotless" version "7.0.2"
 }
 
+java {
+    // 17 is lowest but we support and recommend 21
+    sourceCompatibility = JavaVersion.VERSION_17
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(17)) // Beispiel: Java 17
+    }
+}
+
 repositories {
     mavenCentral()
 }
@@ -86,6 +94,6 @@ tasks.withType(JavaCompile).configureEach {
 }
 
 tasks.wrapper {
-    gradleVersion = "8.12"
+    gradleVersion = "8.13"
     distributionType = Wrapper.DistributionType.ALL
 }
