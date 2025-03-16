@@ -173,6 +173,8 @@ public class SwaggerHubClient {
     }
 
     private Request buildPutRequest(HttpUrl httpUrl, String content) {
+        String jsonBody = "{\"version\": \"" + content + "\"}";
+
         return new Request.Builder()
                 .url(httpUrl)
                 .addHeader("Content-Type", "application/json; charset=utf-8")
@@ -180,7 +182,7 @@ public class SwaggerHubClient {
                 .addHeader("User-Agent", "swaggerhub-gradle-plugin")
                 .put(
                         RequestBody.create(
-                                content, MediaType.parse("application/json; charset=utf-8")))
+                                jsonBody, MediaType.parse("application/json; charset=utf-8")))
                 .build();
     }
 
