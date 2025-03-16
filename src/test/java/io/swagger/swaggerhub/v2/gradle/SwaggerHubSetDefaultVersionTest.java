@@ -102,6 +102,7 @@ public class SwaggerHubSetDefaultVersionTest {
 
     private void setupServerMockingPUT(SwaggerHubRequest request, String port, String token) {
         startMockServer(Integer.parseInt(port));
+        String jsonBody = "{\"version\": \"" + request.getVersion() + "\"}";
 
         UrlPathPattern url =
                 urlPathEqualTo(
@@ -117,7 +118,7 @@ public class SwaggerHubSetDefaultVersionTest {
                                 equalToIgnoreCase("application/json; charset=UTF-8"))
                         .withHeader("Authorization", equalTo(token))
                         .withHeader("User-Agent", equalTo("swaggerhub-gradle-plugin"))
-                        .withRequestBody(equalTo(request.getVersion()))
+                        .withRequestBody(equalTo(jsonBody))
                         .willReturn(noContent()));
     }
 
