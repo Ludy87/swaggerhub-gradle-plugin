@@ -69,21 +69,21 @@ swaggerhubDownload {
 ```
 
 #### Parameters
-Parameter | Description                                                                                        | Required | Default
---------- |----------------------------------------------------------------------------------------------------| --------- | -------
-**`api`** | API name                                                                                           | true  | -
-**`owner`** | API owner                                                                                          | true | -
-**`version`** | API version                                                                                        | true | -  
-**`outputFile`** | API definition is written to this file                                                             | true | -
-**`token`** | SwaggerHub API key, required to access private definitions                                         | false | -
-**`format`** | API definition format, `json` or `yaml`                                                            | false | `json`
-**`host`** | URL of SwaggerHub API                                                                              | false | `api.swaggerhub.com`
-**`protocol`** | Protocol for SwaggerHub API,`http` or `https`                                                      | false | `https`
-**`port`** | Port to access SwaggerHub API                                                                      | false | `443`
-**`oas`** | Version of the OpenApi Specification the definition adheres to                                     | false | `2.0`
-**`resolved`** | Download a resolved version of the API definition                                                  | false | `false`
-**`onPremise`** | Uses the API path suffix for on-premise SwaggerHub deployments                                     | false | `false`
-**`onPremiseAPISuffix`** | Custom API Suffix path for any future changes in SwaggerHub API pattern for on-premise deployments | false | `/v1`
+| Parameter                | Description                                                                                        | Required | Default              |
+| ------------------------ | -------------------------------------------------------------------------------------------------- | -------- | -------------------- |
+| **`api`**                | API name                                                                                           | true     | -                    |
+| **`owner`**              | API owner                                                                                          | true     | -                    |
+| **`version`**            | API version                                                                                        | true     | -                    |
+| **`outputFile`**         | API definition is written to this file                                                             | true     | -                    |
+| **`token`**              | SwaggerHub API key, required to access private definitions                                         | false    | -                    |
+| **`format`**             | API definition format, `json` or `yaml`                                                            | false    | `json`               |
+| **`host`**               | URL of SwaggerHub API                                                                              | false    | `api.swaggerhub.com` |
+| **`protocol`**           | Protocol for SwaggerHub API,`http` or `https`                                                      | false    | `https`              |
+| **`port`**               | Port to access SwaggerHub API                                                                      | false    | `443`                |
+| **`oas`**                | Version of the OpenApi Specification the definition adheres to                                     | false    | `2.0`                |
+| **`resolved`**           | Download a resolved version of the API definition                                                  | false    | `false`              |
+| **`onPremise`**          | Uses the API path suffix for on-premise SwaggerHub deployments                                     | false    | `false`              |
+| **`onPremiseAPISuffix`** | Custom API Suffix path for any future changes in SwaggerHub API pattern for on-premise deployments | false    | `/v1`                |
 ***
 
 ### swaggerhubUpload
@@ -176,17 +176,50 @@ swaggerhubUpload {
 ```
 
 #### Parameters
-Parameter | Description | Required | Default
---------- | ----------- | --------- | -------
-**`api`** | API name | true  | -
-**`owner`** | API owner | true | -
-**`version`** | API version | true | -  
-**`inputFile`** | Local file containing the API definition in json or yaml format  | true | -
-**`token`** | SwaggerHub API key | true | -
-**`format`** | API definition format, `json` or `yaml` | false | `json`
-**`isPrivate`** | Defines whether the API should be private on SwaggerHub (using `true` requires a paid plan) | false | `false`
-**`host`** | URL of SwaggerHub API | false | `api.swaggerhub.com`
-**`protocol`** | Protocol for SwaggerHub API,`http` or `https` | false | `https`
-**`port`** | Port to access SwaggerHub API| false | `443`
-**`onPremise`** | Uses the API path suffix for on-premise SwaggerHub deployments                                     | false | `false`
-**`onPremiseAPISuffix`** | Custom API Suffix path for any future changes in SwaggerHub API pattern for on-premise deployments | false | `/v1`
+| Parameter                | Description                                                                                        | Required | Default              |
+| ------------------------ | -------------------------------------------------------------------------------------------------- | -------- | -------------------- |
+| **`api`**                | API name                                                                                           | true     | -                    |
+| **`owner`**              | API owner                                                                                          | true     | -                    |
+| **`version`**            | API version                                                                                        | true     | -                    |
+| **`inputFile`**          | Local file containing the API definition in json or yaml format                                    | true     | -                    |
+| **`token`**              | SwaggerHub API key                                                                                 | true     | -                    |
+| **`format`**             | API definition format, `json` or `yaml`                                                            | false    | `json`               |
+| **`isPrivate`**          | Defines whether the API should be private on SwaggerHub (using `true` requires a paid plan)        | false    | `false`              |
+| **`host`**               | URL of SwaggerHub API                                                                              | false    | `api.swaggerhub.com` |
+| **`protocol`**           | Protocol for SwaggerHub API,`http` or `https`                                                      | false    | `https`              |
+| **`port`**               | Port to access SwaggerHub API                                                                      | false    | `443`                |
+| **`onPremise`**          | Uses the API path suffix for on-premise SwaggerHub deployments                                     | false    | `false`              |
+| **`onPremiseAPISuffix`** | Custom API Suffix path for any future changes in SwaggerHub API pattern for on-premise deployments | false    | `/v1`                |
+
+
+#### Example Usage together with `swagger-gradle-plugin` (code first)
+* Set default version in SwaggerHub.
+
+### new in Version 2
+
+```gradle
+plugins {
+    id 'java'
+    id "io.swagger.core.v3.swagger-gradle-plugin" version '2.0.6'
+    id "io.swagger.swaggerhub" version "1.0.1"
+}
+
+swaggerhubSetDefaultVersion {
+    api 'PetStoreAPI'
+    owner 'swagger-hub'
+    version '1.0.1-SNAPSHOT'
+    token  'duMmyAPiKEy'
+}
+```
+
+
+#### Parameters
+| Parameter      | Description                                   | Required | Default              |
+| -------------- | --------------------------------------------- | -------- | -------------------- |
+| **`api`**      | API name                                      | true     | -                    |
+| **`owner`**    | API owner                                     | true     | -                    |
+| **`version`**  | API version                                   | true     | -                    |
+| **`token`**    | SwaggerHub API key                            | true     | -                    |
+| **`host`**     | URL of SwaggerHub API                         | false    | `api.swaggerhub.com` |
+| **`protocol`** | Protocol for SwaggerHub API,`http` or `https` | false    | `https`              |
+| **`port`**     | Port to access SwaggerHub API                 | false    | `443`                |
