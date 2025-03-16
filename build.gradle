@@ -16,11 +16,11 @@ dependencies {
     testImplementation gradleTestKit()
     testImplementation 'junit:junit:4.13.2'
     testImplementation 'io.swagger:swagger-parser:1.0.73'
-	compileOnly 'org.projectlombok:lombok:1.18.36'
-	annotationProcessor 'org.projectlombok:lombok:1.18.36'
-	
-	testCompileOnly 'org.projectlombok:lombok:1.18.36'
-	testAnnotationProcessor 'org.projectlombok:lombok:1.18.36'
+    compileOnly 'org.projectlombok:lombok:1.18.36'
+    annotationProcessor 'org.projectlombok:lombok:1.18.36'
+
+    testCompileOnly 'org.projectlombok:lombok:1.18.36'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.36'
 }
 
 spotless {
@@ -29,7 +29,7 @@ spotless {
 
         googleJavaFormat("1.25.2").aosp().reorderImports(false)
 
-        importOrder("java", "javax", "org", "com", "net", "io", "jakarta", "lombok", "me", "stirling")
+        importOrder("java", "javax", "org", "com", "net", "io", "lombok")
         toggleOffOn()
         trimTrailingWhitespace()
         leadingTabsToSpaces()

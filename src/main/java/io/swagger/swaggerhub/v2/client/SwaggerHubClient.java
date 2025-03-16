@@ -115,6 +115,41 @@ public class SwaggerHubClient {
         }
     }
 
+    public void saveDefinition(SwaggerHubRequest swaggerHubRequest) throws GradleException {
+        HttpUrl httpUrl = getUploadUrl(swaggerHubRequest);
+        MediaType mediaType = getMediaType(swaggerHubRequest);
+        Request httpRequest = buildPostRequest(httpUrl, mediaType, swaggerHubRequest.getSwagger());
+
+        try (Response response = CLIENT.newCall(httpRequest).execute()) {
+            String responseBody = response.body() != null ? response.body().string() : null;
+
+            if (responseBody == null) {
+                throw new GradleException(UPLOAD_FAILED_ERROR + "Response body is empty");
+            } else if (!response.isSuccessful()) {
+                throw new GradleException(UPLOAD_FAILED_ERROR + responseBody);
+            }
+        } catch (IOException e) {
+            throw new GradleException(UPLOAD_FAILED_ERROR, e);
+        }
+    }
+
+    public void saveDefinitionPUT(SwaggerHubRequest swaggerHubRequest) throws GradleException {
+        HttpUrl httpUrl = getDefaultVersionUrl(swaggerHubRequest);
+        Request httpRequest = buildPutRequest(httpUrl, swaggerHubRequest.getVersion());
+
+        try (Response response = CLIENT.newCall(httpRequest).execute()) {
+            String responseBody = response.body() != null ? response.body().string() : null;
+
+            if (responseBody == null) {
+                throw new GradleException(UPLOAD_FAILED_ERROR + "Response body is empty");
+            } else if (!response.isSuccessful()) {
+                throw new GradleException(UPLOAD_FAILED_ERROR + responseBody);
+            }
+        } catch (IOException e) {
+            throw new GradleException(UPLOAD_FAILED_ERROR, e);
+        }
+    }
+
     private Request buildGetRequest(HttpUrl httpUrl, MediaType mediaType) {
         Request.Builder requestBuilder =
                 new Request.Builder()
@@ -127,22 +162,6 @@ public class SwaggerHubClient {
         return requestBuilder.build();
     }
 
-    public void saveDefinition(SwaggerHubRequest swaggerHubRequest) throws GradleException {
-        HttpUrl httpUrl = getUploadUrl(swaggerHubRequest);
-        MediaType mediaType = getMediaType(swaggerHubRequest);
-        Request httpRequest = buildPostRequest(httpUrl, mediaType, swaggerHubRequest.getSwagger());
-
-        try (Response response = CLIENT.newCall(httpRequest).execute()) {
-            if (response.body() == null) {
-                throw new GradleException(UPLOAD_FAILED_ERROR + "Response body is empty");
-            } else if (!response.isSuccessful()) {
-                throw new GradleException(UPLOAD_FAILED_ERROR + response.body().string());
-            }
-        } catch (IOException e) {
-            throw new GradleException(UPLOAD_FAILED_ERROR, e);
-        }
-    }
-
     private Request buildPostRequest(HttpUrl httpUrl, MediaType mediaType, String content) {
         return new Request.Builder()
                 .url(httpUrl)
@@ -150,6 +169,18 @@ public class SwaggerHubClient {
                 .addHeader("Authorization", token)
                 .addHeader("User-Agent", "swaggerhub-gradle-plugin")
                 .post(RequestBody.create(content, mediaType))
+                .build();
+    }
+
+    private Request buildPutRequest(HttpUrl httpUrl, String content) {
+        return new Request.Builder()
+                .url(httpUrl)
+                .addHeader("Content-Type", "application/json; charset=utf-8")
+                .addHeader("Authorization", token)
+                .addHeader("User-Agent", "swaggerhub-gradle-plugin")
+                .put(
+                        RequestBody.create(
+                                content, MediaType.parse("application/json; charset=utf-8")))
                 .build();
     }
 
@@ -166,6 +197,13 @@ public class SwaggerHubClient {
                 .addEncodedQueryParameter(
                         "isPrivate", Boolean.toString(swaggerHubRequest.getIsPrivate()))
                 .addEncodedQueryParameter("oas", swaggerHubRequest.getOas())
+                .build();
+    }
+
+    private HttpUrl getDefaultVersionUrl(SwaggerHubRequest swaggerHubRequest) {
+        return getBaseUrl(swaggerHubRequest.getOwner(), swaggerHubRequest.getApi())
+                .addEncodedPathSegment("settings")
+                .addEncodedPathSegment("default")
                 .build();
     }
 

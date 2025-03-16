@@ -39,23 +39,24 @@ import java.nio.file.Paths;
 
 import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;
+import org.gradle.api.logging.Logging;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.Optional;
 import org.gradle.api.tasks.TaskAction;
+import org.slf4j.Logger;
 
 import io.swagger.swaggerhub.v2.client.SwaggerHubClient;
 import io.swagger.swaggerhub.v2.client.SwaggerHubRequest;
 
 import lombok.Getter;
 import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
 
 /** Downloads API definition from SwaggerHub */
-@Slf4j
 @Getter
 @Setter
 public class DownloadTask extends DefaultTask {
+    private static final Logger LOGGER = Logging.getLogger(DownloadTask.class);
     @Input private String owner;
     @Input private String api;
     @Input private String version;
@@ -75,7 +76,7 @@ public class DownloadTask extends DefaultTask {
     public void downloadDefinition() throws GradleException {
         swaggerHubClient = SwaggerHubClient.create(host, port, protocol, token);
 
-        log.info(
+        LOGGER.info(
                 "Downloading from {}: api: {}, owner: {}, version: {}, format: {}, resolved: {},"
                         + " outputFile: {}, onPremise: {}, onPremiseAPISuffix: {}",
                 host,

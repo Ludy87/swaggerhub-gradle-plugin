@@ -35,6 +35,7 @@ import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 
 import io.swagger.swaggerhub.v2.tasks.DownloadTask;
+import io.swagger.swaggerhub.v2.tasks.SetDefaultVersion;
 import io.swagger.swaggerhub.v2.tasks.UploadTask;
 
 public class SwaggerHubPlugin implements Plugin<Project> {
@@ -42,5 +43,6 @@ public class SwaggerHubPlugin implements Plugin<Project> {
     public void apply(Project project) {
         project.getTasks().register("swaggerhubDownload", DownloadTask.class);
         project.getTasks().register("swaggerhubUpload", UploadTask.class);
+        project.getTasks().register("swaggerhubSetDefaultVersion", SetDefaultVersion.class);
     }
 }

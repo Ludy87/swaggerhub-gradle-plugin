@@ -38,11 +38,13 @@ import java.nio.file.Paths;
 
 import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;
+import org.gradle.api.logging.Logging;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFile;
 import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.Optional;
 import org.gradle.api.tasks.TaskAction;
+import org.slf4j.Logger;
 
 import io.swagger.swaggerhub.v2.client.SwaggerHubClient;
 import io.swagger.swaggerhub.v2.client.SwaggerHubRequest;
@@ -56,6 +58,7 @@ import lombok.extern.slf4j.Slf4j;
 @Getter
 @Setter
 public class UploadTask extends DefaultTask {
+    private static final Logger LOGGER = Logging.getLogger(UploadTask.class);
     @Input private String owner;
     @Input private String api;
     @Input private String version;
@@ -74,21 +77,10 @@ public class UploadTask extends DefaultTask {
 
     @TaskAction
     public void uploadDefinition() throws GradleException {
-
-        // swaggerHubClient = SwaggerHubClient.create(host, port, protocol, token);
-        try {
-            if (Files.notExists(Paths.get(inputFile))) {
-                Files.createFile(Paths.get(inputFile).toAbsolutePath().normalize());
-            }
-        } catch (IOException e) {
-            throw new GradleException(e.getMessage(), e);
-        }
-
         swaggerHubClient =
                 SwaggerHubClient.createOnPremise(
                         host, port, protocol, token, onPremise, onPremiseAPISuffix);
-
-        log.info(
+        LOGGER.info(
                 "Uploading to {}: api: {}, owner: {}, version: {}, inputFile: {}, format: {},"
                         + " isPrivate: {}, oas: {}, onPremise: {}, onPremiseAPISuffix: {} ",
                 host,
@@ -99,6 +91,7 @@ public class UploadTask extends DefaultTask {
                 format,
                 isPrivate,
                 oas,
+                inputFile,
                 onPremise,
                 onPremiseAPISuffix);
 

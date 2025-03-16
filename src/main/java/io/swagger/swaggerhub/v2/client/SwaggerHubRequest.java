@@ -46,9 +46,10 @@ public class SwaggerHubRequest {
     private String api;
     private String owner;
     private String version;
-    @Builder.Default private String format = "json";
     private String swagger;
     private String oas;
+
+    @Builder.Default private String format = "json";
     @Builder.Default private Boolean isPrivate = false;
     @Builder.Default private Boolean resolved = false;
     @Builder.Default private Boolean onPremise = false;
