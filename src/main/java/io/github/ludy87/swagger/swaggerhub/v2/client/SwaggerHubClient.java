@@ -29,7 +29,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.swagger.swaggerhub.v2.client;
+package io.github.ludy87.swagger.swaggerhub.v2.client;
 
 import java.io.IOException;
 

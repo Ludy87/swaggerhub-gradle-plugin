@@ -1,6 +1,7 @@
 plugins {
     id 'groovy'
     id 'java-gradle-plugin'
+    id("com.gradle.plugin-publish") version "1.3.1"
     id "com.diffplug.spotless" version "7.0.2"
 }
 
@@ -36,7 +37,7 @@ spotless {
     java {
         target project.fileTree('src').include('**/*.java')
 
-        googleJavaFormat("1.25.2").aosp().reorderImports(false)
+        googleJavaFormat("1.26.0").aosp().reorderImports(false)
 
         importOrder("java", "javax", "org", "com", "net", "io", "lombok")
         toggleOffOn()
@@ -74,7 +75,21 @@ def setVersionToFile = { newVersion ->
 }
 
 version = getVersionFromFile()
-group = 'io.swagger.v2'
+group = 'io.github.ludy87.swagger.v2'
+
+gradlePlugin {
+    website.set("https://github.com/Ludy87/swaggerhub-gradle-plugin")
+    vcsUrl.set("https://github.com/Ludy87/swaggerhub-gradle-plugin")
+    plugins {
+        swaggerhub {
+            id = "io.github.ludy87.swagger.v2"
+            implementationClass = "io.github.ludy87.swagger.swaggerhub.v2.SwaggerHubPlugin"
+            displayName = "SwaggerHub Gradle Plugin V2"
+            description = "Gradle Plugin for SwaggerHub Version 2 - based on https://github.com/SmartBear/swaggerhub-gradle-plugin"
+            tags.set(['swagger', 'swaggerhub', 'openapi', 'api'])
+        }
+    }
+}
 
 tasks.register("incrementVersion") {
     doLast {

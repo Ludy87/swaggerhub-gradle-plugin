@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.swagger.swaggerhub.v2.gradle;
+package io.github.ludy87.swagger.swaggerhub.v2.gradle;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.gradle.testkit.runner.TaskOutcome.SUCCESS;
@@ -36,7 +36,7 @@ import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.matching.UrlPathPattern;
 
-import io.swagger.swaggerhub.v2.client.SwaggerHubRequest;
+import io.github.ludy87.swagger.swaggerhub.v2.client.SwaggerHubRequest;
 
 public class SwaggerHubSetDefaultVersionTest {
 
@@ -87,7 +87,7 @@ public class SwaggerHubSetDefaultVersionTest {
 
     private void createBuildFile(SwaggerHubRequest request) throws IOException {
         String buildFileContent =
-                "plugins { id 'io.swagger.swaggerhub.v2' }\n"
+                "plugins { id 'io.github.ludy87.swagger.swaggerhub.v2' }\n"
                         + SETDEFAULTVERSION_TASK
                         + " {\n"
                         + "    host '"

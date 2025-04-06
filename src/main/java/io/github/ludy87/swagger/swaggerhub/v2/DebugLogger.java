@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.swagger.swaggerhub.v2;
+package io.github.ludy87.swagger.swaggerhub.v2;
 
 import java.io.FileWriter;
 import java.io.IOException;

@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.swagger.swaggerhub.v2.tasks;
+package io.github.ludy87.swagger.swaggerhub.v2.tasks;
 
 import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;
@@ -23,8 +23,8 @@ import org.gradle.api.tasks.Optional;
 import org.gradle.api.tasks.TaskAction;
 import org.slf4j.Logger;
 
-import io.swagger.swaggerhub.v2.client.SwaggerHubClient;
-import io.swagger.swaggerhub.v2.client.SwaggerHubRequest;
+import io.github.ludy87.swagger.swaggerhub.v2.client.SwaggerHubClient;
+import io.github.ludy87.swagger.swaggerhub.v2.client.SwaggerHubRequest;
 
 import lombok.Getter;
 import lombok.Setter;

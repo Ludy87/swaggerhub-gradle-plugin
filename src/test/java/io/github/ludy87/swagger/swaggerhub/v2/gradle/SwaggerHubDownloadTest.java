@@ -29,7 +29,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.swagger.swaggerhub.v2.gradle;
+package io.github.ludy87.swagger.swaggerhub.v2.gradle;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.anyUrl;
@@ -84,7 +84,7 @@ public class SwaggerHubDownloadTest {
                 WireMock.get(urlPathEqualTo("/apis/swagger-hub/test-api/1.0.0"))
                         .willReturn(aResponse().withBodyFile("TestAPI.json")));
         String buildFileContent =
-                "plugins { id 'io.swagger.swaggerhub.v2' }\n"
+                "plugins { id 'io.github.ludy87.swagger.swaggerhub.v2' }\n"
                         + DOWNLOAD_TASK
                         + " {\n"
                         + "    protocol 'http'\n"
@@ -116,7 +116,7 @@ public class SwaggerHubDownloadTest {
         stubFor(WireMock.get(anyUrl()).willReturn(WireMock.ok()));
 
         String buildFileContent =
-                "plugins { id 'io.swagger.swaggerhub.v2' }\n"
+                "plugins { id 'io.github.ludy87.swagger.swaggerhub.v2' }\n"
                         + DOWNLOAD_TASK
                         + " {\n"
                         + "    protocol 'http'\n"
@@ -145,7 +145,7 @@ public class SwaggerHubDownloadTest {
         stubFor(WireMock.get(anyUrl()).willReturn(WireMock.ok()));
 
         String buildFileContent =
-                "plugins { id 'io.swagger.swaggerhub.v2' }\n"
+                "plugins { id 'io.github.ludy87.swagger.swaggerhub.v2' }\n"
                         + DOWNLOAD_TASK
                         + " {\n"
                         + "    protocol 'http'\n"

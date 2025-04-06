@@ -29,7 +29,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.swagger.swaggerhub.v2.gradle;
+package io.github.ludy87.swagger.swaggerhub.v2.gradle;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.created;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
@@ -64,7 +64,7 @@ import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.matching.UrlPathPattern;
 
-import io.swagger.swaggerhub.v2.client.SwaggerHubRequest;
+import io.github.ludy87.swagger.swaggerhub.v2.client.SwaggerHubRequest;
 
 public class SwaggerHubUploadTest {
 
@@ -204,7 +204,7 @@ public class SwaggerHubUploadTest {
         String filePath = inputFile.toString().replace("\\", "/");
 
         String buildFileContent =
-                "plugins { id 'io.swagger.swaggerhub.v2' }\n"
+                "plugins { id 'io.github.ludy87.swagger.swaggerhub.v2' }\n"
                         + UPLOAD_TASK
                         + " {\n"
                         + "    host '"

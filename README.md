@@ -54,7 +54,7 @@ plugins {
     id 'java'
 }
 
-apply plugin: 'io.swagger.swaggerhub.v2'
+apply plugin: 'io.github.ludy87.swagger.swaggerhub.v2'
 ```
 
 ## Tasks
@@ -156,7 +156,7 @@ plugins {
     id "io.swagger.core.v3.swagger-gradle-plugin" version '2.0.6'
 }
 
-apply plugin: 'io.swagger.swaggerhub.v2'
+apply plugin: 'io.github.ludy87.swagger.swaggerhub.v2'
 
 resolve {
     outputFileName = 'PetStoreAPI'
@@ -215,7 +215,7 @@ plugins {
     id 'java'
 }
 
-apply plugin: "io.swagger.swaggerhub.v2"
+apply plugin: "io.github.ludy87.swagger.swaggerhub.v2"
 
 swaggerhubSetDefaultVersion {
     api 'PetStoreAPI'

@@ -29,14 +29,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.swagger.swaggerhub.v2;
+package io.github.ludy87.swagger.swaggerhub.v2;
 
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 
-import io.swagger.swaggerhub.v2.tasks.DownloadTask;
-import io.swagger.swaggerhub.v2.tasks.SetDefaultVersion;
-import io.swagger.swaggerhub.v2.tasks.UploadTask;
+import io.github.ludy87.swagger.swaggerhub.v2.tasks.DownloadTask;
+import io.github.ludy87.swagger.swaggerhub.v2.tasks.SetDefaultVersion;
+import io.github.ludy87.swagger.swaggerhub.v2.tasks.UploadTask;
 
 public class SwaggerHubPlugin implements Plugin<Project> {
     @Override

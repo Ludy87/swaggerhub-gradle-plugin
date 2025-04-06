@@ -29,9 +29,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.swagger.swaggerhub.v2.tasks;
+package io.github.ludy87.swagger.swaggerhub.v2.tasks;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -41,78 +40,81 @@ import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;
 import org.gradle.api.logging.Logging;
 import org.gradle.api.tasks.Input;
+import org.gradle.api.tasks.InputFile;
 import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.Optional;
 import org.gradle.api.tasks.TaskAction;
 import org.slf4j.Logger;
 
-import io.swagger.swaggerhub.v2.client.SwaggerHubClient;
-import io.swagger.swaggerhub.v2.client.SwaggerHubRequest;
+import io.github.ludy87.swagger.swaggerhub.v2.client.SwaggerHubClient;
+import io.github.ludy87.swagger.swaggerhub.v2.client.SwaggerHubRequest;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
-/** Downloads API definition from SwaggerHub */
+/** Uploads API definition to SwaggerHub */
+@Slf4j
 @Getter
 @Setter
-public class DownloadTask extends DefaultTask {
-    private static final Logger LOGGER = Logging.getLogger(DownloadTask.class);
+public class UploadTask extends DefaultTask {
+    private static final Logger LOGGER = Logging.getLogger(UploadTask.class);
     @Input private String owner;
     @Input private String api;
     @Input private String version;
-    @Input @Optional private String token;
-    @Input private String outputFile;
-    @Input @Optional private String format = "json";
+    @Input private String token;
+    @InputFile private String inputFile;
+    @Input private Boolean isPrivate = false;
     @Input @Optional private String host = "api.swaggerhub.com";
     @Input @Optional private Integer port = 443;
     @Input @Optional private String protocol = "https";
-    @Input @Optional private Boolean resolved = false;
+    @Input @Optional private String format = "json";
+    @Input @Optional private String oas = "2.0";
     @Input @Optional private Boolean onPremise = false;
     @Input @Optional private String onPremiseAPISuffix = "v1";
 
     @Internal private SwaggerHubClient swaggerHubClient;
 
     @TaskAction
-    public void downloadDefinition() throws GradleException {
-        swaggerHubClient = SwaggerHubClient.create(host, port, protocol, token);
-
+    public void uploadDefinition() throws GradleException {
+        swaggerHubClient =
+                SwaggerHubClient.createOnPremise(
+                        host, port, protocol, token, onPremise, onPremiseAPISuffix);
         LOGGER.info(
-                "Downloading from {}: api: {}, owner: {}, version: {}, format: {}, resolved: {},"
-                        + " outputFile: {}, onPremise: {}, onPremiseAPISuffix: {}",
+                "Uploading to {}: api: {}, owner: {}, version: {}, inputFile: {}, format: {},"
+                        + " isPrivate: {}, oas: {}, onPremise: {}, onPremiseAPISuffix: {} ",
                 host,
                 api,
                 owner,
                 version,
+                inputFile,
                 format,
-                resolved,
-                outputFile,
+                isPrivate,
+                oas,
+                inputFile,
                 onPremise,
                 onPremiseAPISuffix);
 
-        SwaggerHubRequest swaggerHubRequest =
-                SwaggerHubRequest.builder()
-                        .api(api)
-                        .owner(owner)
-                        .version(version)
-                        .format(format)
-                        .resolved(resolved)
-                        .build();
-
         try {
-            String swaggerJson = swaggerHubClient.getDefinition(swaggerHubRequest);
-            File file = new File(outputFile);
+            String content =
+                    new String(Files.readAllBytes(Paths.get(inputFile)), StandardCharsets.UTF_8);
 
-            setUpOutputDir(file);
-            Files.write(Paths.get(outputFile), swaggerJson.getBytes(StandardCharsets.UTF_8));
+            SwaggerHubRequest swaggerHubRequest =
+                    SwaggerHubRequest.builder()
+                            .api(api)
+                            .owner(owner)
+                            .version(version)
+                            .format(format)
+                            .swagger(content)
+                            .oas(oas)
+                            .onPremise(onPremise)
+                            .onPremiseAPISuffix(onPremiseAPISuffix)
+                            .isPrivate(isPrivate)
+                            .build();
+
+            swaggerHubClient.saveDefinition(swaggerHubRequest);
         } catch (IOException | GradleException e) {
             throw new GradleException(e.getMessage(), e);
-        }
-    }
-
-    private void setUpOutputDir(File file) throws IOException {
-        File parentFile = file.getParentFile();
-        if (parentFile != null) {
-            Files.createDirectories(file.getParentFile().toPath());
         }
     }
 }
