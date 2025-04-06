@@ -123,4 +123,3 @@ gradle-app.setting
 *.ssh
 *.ssh.*
 gradle.properties
-gradle.properties
