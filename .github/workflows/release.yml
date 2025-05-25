@@ -1,12 +1,11 @@
 name: Release jar
 
 on:
-    workflow_dispatch:
-    release:
-      types: [created]
-
+  workflow_dispatch:
+  release:
+    types: [created]
 permissions:
-    contents: read
+  contents: read
 
 jobs:
   read_versions:
@@ -198,6 +197,15 @@ jobs:
         run: |
           git config --global user.name "${{ steps.generate-token.outputs.app-slug }}[bot]"
           git config --global user.email "${{ steps.get-user-id.outputs.user-id }}+${{ steps.generate-token.outputs.app-slug }}[bot]@users.noreply.github.com"
+
+      - name: Update version in version.properties
+        run: |
+          CURRENT_VERSION=$(grep '^version=' version.properties | cut -d'=' -f2)
+          IFS='.' read -r -a VERSION_PARTS <<< "$CURRENT_VERSION"
+          PATCH=$(( ${VERSION_PARTS[2]} + 1 ))
+          NEW_VERSION="${VERSION_PARTS[0]}.${VERSION_PARTS[1]}.$PATCH"
+          sed -i "s/^version=.*/version=$NEW_VERSION/" version.properties
+          echo "Updated version from $CURRENT_VERSION to $NEW_VERSION"
 
       - name: git add
         run: |
