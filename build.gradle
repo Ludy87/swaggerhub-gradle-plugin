@@ -25,7 +25,7 @@ dependencies {
     testImplementation 'com.github.tomakehurst:wiremock-jre8-standalone:3.0.1'
     testImplementation gradleTestKit()
     testImplementation 'junit:junit:4.13.2'
-    testImplementation 'io.swagger:swagger-parser:1.0.74'
+    testImplementation 'io.swagger:swagger-parser:1.0.75'
     compileOnly 'org.projectlombok:lombok:1.18.38'
     annotationProcessor 'org.projectlombok:lombok:1.18.38'
 
