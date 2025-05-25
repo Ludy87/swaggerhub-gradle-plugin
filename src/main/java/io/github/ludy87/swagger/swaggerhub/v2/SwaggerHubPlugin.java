@@ -38,7 +38,18 @@ import io.github.ludy87.swagger.swaggerhub.v2.tasks.DownloadTask;
 import io.github.ludy87.swagger.swaggerhub.v2.tasks.SetDefaultVersion;
 import io.github.ludy87.swagger.swaggerhub.v2.tasks.UploadTask;
 
+/**
+ * The SwaggerHubPlugin class is a Gradle plugin that provides tasks for interacting with
+ * SwaggerHub. It allows users to download API definitions, upload API definitions, and set default
+ * versions for APIs hosted on SwaggerHub.
+ */
 public class SwaggerHubPlugin implements Plugin<Project> {
+    /**
+     * Applies the SwaggerHub plugin to the given Gradle project. It registers three tasks:
+     * swaggerhubDownload, swaggerhubUpload, and swaggerhubSetDefaultVersion.
+     *
+     * @param project the Gradle project to which the plugin is applied
+     */
     @Override
     public void apply(Project project) {
         project.getTasks().register("swaggerhubDownload", DownloadTask.class);

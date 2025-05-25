@@ -72,6 +72,11 @@ public class DownloadTask extends DefaultTask {
 
     @Internal private SwaggerHubClient swaggerHubClient;
 
+    /**
+     * Downloads the API definition from SwaggerHub.
+     *
+     * @throws GradleException if an error occurs during the download process
+     */
     @TaskAction
     public void downloadDefinition() throws GradleException {
         swaggerHubClient = SwaggerHubClient.create(host, port, protocol, token);
@@ -109,6 +114,12 @@ public class DownloadTask extends DefaultTask {
         }
     }
 
+    /**
+     * Sets up the output directory for the downloaded file.
+     *
+     * @param file the file for which the parent directory should be created
+     * @throws IOException if an error occurs while creating the directories
+     */
     private void setUpOutputDir(File file) throws IOException {
         File parentFile = file.getParentFile();
         if (parentFile != null) {

@@ -29,6 +29,10 @@ import io.github.ludy87.swagger.swaggerhub.v2.client.SwaggerHubRequest;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * Sets the default version of an API in SwaggerHub. This task uploads the API definition and sets
+ * it as the default version.
+ */
 @Getter
 @Setter
 public class SetDefaultVersion extends DefaultTask {
@@ -45,6 +49,11 @@ public class SetDefaultVersion extends DefaultTask {
 
     @Internal private SwaggerHubClient swaggerHubClient;
 
+    /**
+     * Uploads the API definition to SwaggerHub and sets it as the default version.
+     *
+     * @throws GradleException if there is an error during the upload process
+     */
     @TaskAction
     public void uploadDefinition() throws GradleException {
         swaggerHubClient =

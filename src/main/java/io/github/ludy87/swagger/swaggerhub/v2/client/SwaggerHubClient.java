@@ -46,6 +46,10 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
+/**
+ * Client for interacting with SwaggerHub API. This class provides methods to download and upload
+ * API definitions.
+ */
 @Getter
 @Builder
 public class SwaggerHubClient {
@@ -63,6 +67,15 @@ public class SwaggerHubClient {
     private final String onPremiseAPISuffix;
     private final OkHttpClient client;
 
+    /**
+     * Creates a SwaggerHubClient for public SwaggerHub instances.
+     *
+     * @param host the host of the SwaggerHub instance
+     * @param port the port of the SwaggerHub instance
+     * @param protocol the protocol (http or https)
+     * @param token the authentication token
+     * @return a configured SwaggerHubClient instance
+     */
     public static SwaggerHubClient create(
             String host, Integer port, String protocol, String token) {
         return SwaggerHubClient.builder()
@@ -76,6 +89,17 @@ public class SwaggerHubClient {
                 .build();
     }
 
+    /**
+     * Creates a SwaggerHubClient for on-premise SwaggerHub instances.
+     *
+     * @param host the host of the SwaggerHub instance
+     * @param port the port of the SwaggerHub instance
+     * @param protocol the protocol (http or https)
+     * @param token the authentication token
+     * @param onPremise whether this is an on-premise instance
+     * @param onPremiseAPISuffix the API suffix for on-premise instances
+     * @return a configured SwaggerHubClient instance
+     */
     public static SwaggerHubClient createOnPremise(
             String host,
             Integer port,
@@ -96,6 +120,13 @@ public class SwaggerHubClient {
         return swaggweHubClient;
     }
 
+    /**
+     * Downloads the API definition from SwaggerHub.
+     *
+     * @param swaggerHubRequest the request containing API details
+     * @return the API definition as a string
+     * @throws GradleException if there is an error during the GET request
+     */
     public String getDefinition(SwaggerHubRequest swaggerHubRequest) throws GradleException {
         HttpUrl httpUrl = getDownloadUrl(swaggerHubRequest);
         MediaType mediaType = getMediaType(swaggerHubRequest);
@@ -115,6 +146,12 @@ public class SwaggerHubClient {
         }
     }
 
+    /**
+     * Saves the API definition to SwaggerHub.
+     *
+     * @param swaggerHubRequest the request containing API details
+     * @throws GradleException if there is an error during the POST request
+     */
     public void saveDefinition(SwaggerHubRequest swaggerHubRequest) throws GradleException {
         HttpUrl httpUrl = getUploadUrl(swaggerHubRequest);
         MediaType mediaType = getMediaType(swaggerHubRequest);
@@ -133,6 +170,12 @@ public class SwaggerHubClient {
         }
     }
 
+    /**
+     * Sets the default version for the API in SwaggerHub.
+     *
+     * @param swaggerHubRequest the request containing API details
+     * @throws GradleException if there is an error during the PUT request
+     */
     public void saveDefinitionPUT(SwaggerHubRequest swaggerHubRequest) throws GradleException {
         HttpUrl httpUrl = getDefaultVersionUrl(swaggerHubRequest);
         Request httpRequest = buildPutRequest(httpUrl, swaggerHubRequest.getVersion());
@@ -150,6 +193,13 @@ public class SwaggerHubClient {
         }
     }
 
+    /**
+     * Builds a GET request for downloading the API definition.
+     *
+     * @param httpUrl the URL to send the request to
+     * @param mediaType the media type for the request
+     * @return a configured Request object
+     */
     private Request buildGetRequest(HttpUrl httpUrl, MediaType mediaType) {
         Request.Builder requestBuilder =
                 new Request.Builder()
@@ -162,6 +212,14 @@ public class SwaggerHubClient {
         return requestBuilder.build();
     }
 
+    /**
+     * Builds a POST request for uploading the API definition.
+     *
+     * @param httpUrl the URL to send the request to
+     * @param mediaType the media type for the request
+     * @param content the content of the API definition
+     * @return a configured Request object
+     */
     private Request buildPostRequest(HttpUrl httpUrl, MediaType mediaType, String content) {
         return new Request.Builder()
                 .url(httpUrl)
@@ -172,6 +230,13 @@ public class SwaggerHubClient {
                 .build();
     }
 
+    /**
+     * Builds a PUT request for setting the default version of the API.
+     *
+     * @param httpUrl the URL to send the request to
+     * @param content the version to set as default
+     * @return a configured Request object
+     */
     private Request buildPutRequest(HttpUrl httpUrl, String content) {
         String jsonBody = "{\"version\": \"" + content + "\"}";
 
@@ -186,6 +251,12 @@ public class SwaggerHubClient {
                 .build();
     }
 
+    /**
+     * Constructs the download URL for the API definition.
+     *
+     * @param swaggerHubRequest the request containing API details
+     * @return the constructed HttpUrl for downloading the API definition
+     */
     private HttpUrl getDownloadUrl(SwaggerHubRequest swaggerHubRequest) {
         return getBaseUrl(swaggerHubRequest.getOwner(), swaggerHubRequest.getApi())
                 .addEncodedPathSegment(swaggerHubRequest.getVersion())
@@ -193,6 +264,12 @@ public class SwaggerHubClient {
                 .build();
     }
 
+    /**
+     * Constructs the upload URL for the API definition.
+     *
+     * @param swaggerHubRequest the request containing API details
+     * @return the constructed HttpUrl for uploading the API definition
+     */
     private HttpUrl getUploadUrl(SwaggerHubRequest swaggerHubRequest) {
         return getBaseUrl(swaggerHubRequest.getOwner(), swaggerHubRequest.getApi())
                 .addEncodedQueryParameter("version", swaggerHubRequest.getVersion())
@@ -202,6 +279,12 @@ public class SwaggerHubClient {
                 .build();
     }
 
+    /**
+     * Constructs the URL for setting the default version of the API.
+     *
+     * @param swaggerHubRequest the request containing API details
+     * @return the constructed HttpUrl for setting the default version
+     */
     private HttpUrl getDefaultVersionUrl(SwaggerHubRequest swaggerHubRequest) {
         return getBaseUrl(swaggerHubRequest.getOwner(), swaggerHubRequest.getApi())
                 .addEncodedPathSegment("settings")
@@ -209,6 +292,13 @@ public class SwaggerHubClient {
                 .build();
     }
 
+    /**
+     * Constructs the base URL for SwaggerHub API requests.
+     *
+     * @param owner the owner of the API
+     * @param api the name of the API
+     * @return a HttpUrl.Builder configured with the base URL
+     */
     private HttpUrl.Builder getBaseUrl(String owner, String api) {
         return new HttpUrl.Builder()
                 .scheme(protocol)
@@ -220,6 +310,13 @@ public class SwaggerHubClient {
                 .addEncodedPathSegment(api);
     }
 
+    /**
+     * Determines the media type for the request based on the format specified in the
+     * SwaggerHubRequest.
+     *
+     * @param swaggerHubRequest the request containing the format
+     * @return a MediaType object representing the requested format
+     */
     private MediaType getMediaType(SwaggerHubRequest swaggerHubRequest) {
         String headerFormat = "application/%s; charset=utf-8";
         MediaType mediaType =

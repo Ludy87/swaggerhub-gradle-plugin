@@ -75,6 +75,11 @@ public class UploadTask extends DefaultTask {
 
     @Internal private SwaggerHubClient swaggerHubClient;
 
+    /**
+     * Uploads the API definition to SwaggerHub.
+     *
+     * @throws GradleException if there is an error during the upload process
+     */
     @TaskAction
     public void uploadDefinition() throws GradleException {
         swaggerHubClient =

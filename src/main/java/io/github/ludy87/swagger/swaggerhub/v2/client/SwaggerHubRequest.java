@@ -37,6 +37,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
+/**
+ * Represents a request to SwaggerHub for API operations. This class is used to encapsulate the
+ * parameters required for API requests.
+ */
 @Getter
 @Builder
 @NoArgsConstructor
