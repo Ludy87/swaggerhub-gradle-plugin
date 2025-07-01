@@ -18,3 +18,8 @@ updates:
       interval: "daily"
     open-pull-requests-limit: 500
     rebase-strategy: "auto"
+
+  - package-ecosystem: pip
+    directory: /
+    schedule:
+      interval: daily
