@@ -46,7 +46,7 @@ buildscript {
         }
     }
     dependencies {
-        classpath name: 'swaggerhub V2-2.0.84'
+        classpath name: 'swaggerhub V2-2.1.0'
     }
 }
 
@@ -147,7 +147,7 @@ buildscript {
         }
     }
     dependencies {
-        classpath name: 'swaggerhub V2-2.0.84'
+        classpath name: 'swaggerhub V2-2.1.0'
     }
 }
 
@@ -207,7 +207,7 @@ buildscript {
         }
     }
     dependencies {
-        classpath name: "swaggerhub-V2-2.0.84"
+        classpath name: "swaggerhub-V2-2.1.0"
     }
 }
 
