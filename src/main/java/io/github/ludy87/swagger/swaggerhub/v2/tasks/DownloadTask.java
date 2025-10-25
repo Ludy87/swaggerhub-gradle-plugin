@@ -52,24 +52,53 @@ import io.github.ludy87.swagger.swaggerhub.v2.client.SwaggerHubRequest;
 import lombok.Getter;
 import lombok.Setter;
 
-/** Downloads API definition from SwaggerHub */
+/** Downloads API definitions from SwaggerHub. */
 @Getter
 @Setter
 public class DownloadTask extends DefaultTask {
+    /** Logger instance for the task. */
     private static final Logger LOGGER = Logging.getLogger(DownloadTask.class);
+
+    /** Default HTTPS port used by SwaggerHub. */
+    private static final int DEFAULT_PORT = 443;
+
+    /** Owner of the API. */
     @Input private String owner;
+
+    /** API identifier. */
     @Input private String api;
+
+    /** Version to download. */
     @Input private String version;
+
+    /** Optional authentication token. */
     @Input @Optional private String token;
+
+    /** File path for the downloaded definition. */
     @Input private String outputFile;
+
+    /** Desired response format. */
     @Input @Optional private String format = "json";
+
+    /** SwaggerHub host name. */
     @Input @Optional private String host = "api.swaggerhub.com";
-    @Input @Optional private Integer port = 443;
+
+    /** SwaggerHub port. */
+    @Input @Optional private Integer port = DEFAULT_PORT;
+
+    /** Communication protocol. */
     @Input @Optional private String protocol = "https";
+
+    /** Indicates whether a resolved definition should be retrieved. */
     @Input @Optional private Boolean resolved = false;
+
+    /** Signals if an on-premise instance is used. */
     @Input @Optional private Boolean onPremise = false;
+
+    /** Signals if an on-premise instance is used. */
     @Input @Optional private String onPremiseAPISuffix = "v1";
 
+    /** SwaggerHub client used for the download. */
     @Internal private SwaggerHubClient swaggerHubClient;
 
     /**
@@ -82,8 +111,8 @@ public class DownloadTask extends DefaultTask {
         swaggerHubClient = SwaggerHubClient.create(host, port, protocol, token);
 
         LOGGER.info(
-                "Downloading from {}: api: {}, owner: {}, version: {}, format: {}, resolved: {},"
-                        + " outputFile: {}, onPremise: {}, onPremiseAPISuffix: {}",
+                "Downloading from {}: api={}, owner={}, version={}, format={}, "
+                        + "resolved={}, outputFile={}, onPremise={}, onPremiseAPISuffix={}",
                 host,
                 api,
                 owner,
@@ -120,7 +149,7 @@ public class DownloadTask extends DefaultTask {
      * @param file the file for which the parent directory should be created
      * @throws IOException if an error occurs while creating the directories
      */
-    private void setUpOutputDir(File file) throws IOException {
+    private void setUpOutputDir(final File file) throws IOException {
         File parentFile = file.getParentFile();
         if (parentFile != null) {
             Files.createDirectories(file.getParentFile().toPath());

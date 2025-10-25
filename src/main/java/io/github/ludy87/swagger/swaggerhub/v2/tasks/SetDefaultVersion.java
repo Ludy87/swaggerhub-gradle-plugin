@@ -36,17 +36,40 @@ import lombok.Setter;
 @Getter
 @Setter
 public class SetDefaultVersion extends DefaultTask {
+    /** Logger instance for the task. */
     private static final Logger LOGGER = Logging.getLogger(SetDefaultVersion.class);
+
+    /** Default HTTPS port used by SwaggerHub. */
+    private static final int DEFAULT_PORT = 443;
+
+    /** API owner. */
     @Input private String owner;
+
+    /** API identifier. */
     @Input private String api;
+
+    /** Version to promote. */
     @Input private String version;
+
+    /** Authentication token. */
     @Input private String token;
+
+    /** SwaggerHub host name. */
     @Input @Optional private String host = "api.swaggerhub.com";
-    @Input @Optional private Integer port = 443;
+
+    /** SwaggerHub port. */
+    @Input @Optional private Integer port = DEFAULT_PORT;
+
+    /** Protocol used for requests. */
     @Input @Optional private String protocol = "https";
+
+    /** Indicates an on-premise installation. */
     @Input @Optional private Boolean onPremise = false;
+
+    /** On-premise API suffix. */
     @Input @Optional private String onPremiseAPISuffix = "v1";
 
+    /** SwaggerHub client used to communicate with the service. */
     @Internal private SwaggerHubClient swaggerHubClient;
 
     /**
@@ -61,8 +84,8 @@ public class SetDefaultVersion extends DefaultTask {
                         host, port, protocol, token, onPremise, onPremiseAPISuffix);
 
         LOGGER.info(
-                "Setting default version to {}: api: {}, owner: {}, version: {}, onPremise: {},"
-                        + " onPremiseAPISuffix: {}",
+                "Setting default version on {}: api={}, owner={}, version={}, "
+                        + "onPremise={}, onPremiseAPISuffix={}",
                 host,
                 api,
                 owner,

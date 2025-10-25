@@ -1,4 +1,5 @@
-/* Copyright 2025 Ludy87
+/*
+ * Copyright 2025 Ludy87
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,22 +19,27 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-/**
- * DebugLogger is a utility class for logging messages to the console and appending them to a log
- * file. It is primarily used for debugging purposes in the SwaggerHub Gradle plugin.
- */
-public class DebugLogger {
+/** Utility class that writes diagnostic messages to the console and to {@link #LOG_FILE}. */
+public final class DebugLogger {
+
+    /** Name of the file that collects the debug output. */
+    private static final String LOG_FILE = "test-output.log";
+
+    private DebugLogger() {
+        throw new AssertionError("Utility class");
+    }
+
     /**
-     * Logs a message to the console and appends it to a file named "test-output.log".
+     * Logs the supplied message.
      *
-     * @param message The message to log.
+     * @param message the message to log
      */
-    public static void info(String message) {
+    public static void info(final String message) {
         System.out.println(message);
-        try (PrintWriter out = new PrintWriter(new FileWriter("test-output.log", true))) {
+        try (PrintWriter out = new PrintWriter(new FileWriter(LOG_FILE, true))) {
             out.println(message);
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException exception) {
+            exception.printStackTrace();
         }
     }
 }

@@ -46,25 +46,41 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
-/**
- * Client for interacting with SwaggerHub API. This class provides methods to download and upload
- * API definitions.
- */
+/** Client for interacting with the SwaggerHub API. */
 @Getter
 @Builder
 public class SwaggerHubClient {
+    /** Error message prefix when a download fails. */
     private static final String DOWNLOAD_FAILED_ERROR = "Failed to download API definition: ";
+
+    /** Error message prefix when an upload fails. */
     private static final String UPLOAD_FAILED_ERROR = "Failed to upload API definition: ";
-    private static final OkHttpClient CLIENT = new OkHttpClient();
+
+    /** Shared HTTP client used by default instances. */
+    private static final OkHttpClient DEFAULT_CLIENT = new OkHttpClient();
+
+    /** Path segment used for API requests. */
     private static final String APIS = "apis";
 
+    /** Hostname of the SwaggerHub instance. */
     @NonNull private final String host;
+
+    /** Protocol of the SwaggerHub instance. */
     @NonNull private final String protocol;
+
+    /** Authentication token. */
     private final String token;
 
+    /** Port of the SwaggerHub instance. */
     private final int port;
+
+    /** Indicates whether the target instance is on-premise. */
     private final Boolean onPremise;
+
+    /** Optional on-premise API suffix. */
     private final String onPremiseAPISuffix;
+
+    /** HTTP client used to execute requests. */
     private final OkHttpClient client;
 
     /**
@@ -77,7 +93,7 @@ public class SwaggerHubClient {
      * @return a configured SwaggerHubClient instance
      */
     public static SwaggerHubClient create(
-            String host, Integer port, String protocol, String token) {
+            final String host, final Integer port, final String protocol, final String token) {
         return SwaggerHubClient.builder()
                 .host(host)
                 .port(port)
@@ -85,7 +101,7 @@ public class SwaggerHubClient {
                 .token(token)
                 .onPremise(false)
                 .onPremiseAPISuffix(null)
-                .client(CLIENT)
+                .client(DEFAULT_CLIENT)
                 .build();
     }
 
@@ -101,13 +117,13 @@ public class SwaggerHubClient {
      * @return a configured SwaggerHubClient instance
      */
     public static SwaggerHubClient createOnPremise(
-            String host,
-            Integer port,
-            String protocol,
-            String token,
-            Boolean onPremise,
-            String onPremiseAPISuffix) {
-        SwaggerHubClient swaggweHubClient =
+            final String host,
+            final Integer port,
+            final String protocol,
+            final String token,
+            final Boolean onPremise,
+            final String onPremiseAPISuffix) {
+        SwaggerHubClient swaggerHubClient =
                 SwaggerHubClient.builder()
                         .host(host)
                         .port(port)
@@ -115,9 +131,9 @@ public class SwaggerHubClient {
                         .token(token)
                         .onPremise(onPremise != null ? onPremise : false)
                         .onPremiseAPISuffix(onPremiseAPISuffix != null ? onPremiseAPISuffix : "v1")
-                        .client(CLIENT)
+                        .client(DEFAULT_CLIENT)
                         .build();
-        return swaggweHubClient;
+        return swaggerHubClient;
     }
 
     /**
@@ -127,13 +143,13 @@ public class SwaggerHubClient {
      * @return the API definition as a string
      * @throws GradleException if there is an error during the GET request
      */
-    public String getDefinition(SwaggerHubRequest swaggerHubRequest) throws GradleException {
+    public String getDefinition(final SwaggerHubRequest swaggerHubRequest) throws GradleException {
         HttpUrl httpUrl = getDownloadUrl(swaggerHubRequest);
         MediaType mediaType = getMediaType(swaggerHubRequest);
         Request requestBuilder = buildGetRequest(httpUrl, mediaType);
 
-        try (Response response = CLIENT.newCall(requestBuilder).execute()) {
-            String responseBody = response.body() != null ? response.body().string() : null;
+        try (Response response = client.newCall(requestBuilder).execute()) {
+            String responseBody = response.body().string();
             if (responseBody == null) {
                 throw new GradleException(DOWNLOAD_FAILED_ERROR + "Response body is empty");
             } else if (!response.isSuccessful()) {
@@ -152,13 +168,13 @@ public class SwaggerHubClient {
      * @param swaggerHubRequest the request containing API details
      * @throws GradleException if there is an error during the POST request
      */
-    public void saveDefinition(SwaggerHubRequest swaggerHubRequest) throws GradleException {
+    public void saveDefinition(final SwaggerHubRequest swaggerHubRequest) throws GradleException {
         HttpUrl httpUrl = getUploadUrl(swaggerHubRequest);
         MediaType mediaType = getMediaType(swaggerHubRequest);
         Request httpRequest = buildPostRequest(httpUrl, mediaType, swaggerHubRequest.getSwagger());
 
-        try (Response response = CLIENT.newCall(httpRequest).execute()) {
-            String responseBody = response.body() != null ? response.body().string() : null;
+        try (Response response = client.newCall(httpRequest).execute()) {
+            String responseBody = response.body().string();
 
             if (responseBody == null) {
                 throw new GradleException(UPLOAD_FAILED_ERROR + "Response body is empty");
@@ -176,12 +192,13 @@ public class SwaggerHubClient {
      * @param swaggerHubRequest the request containing API details
      * @throws GradleException if there is an error during the PUT request
      */
-    public void saveDefinitionPUT(SwaggerHubRequest swaggerHubRequest) throws GradleException {
+    public void saveDefinitionPUT(final SwaggerHubRequest swaggerHubRequest)
+            throws GradleException {
         HttpUrl httpUrl = getDefaultVersionUrl(swaggerHubRequest);
         Request httpRequest = buildPutRequest(httpUrl, swaggerHubRequest.getVersion());
 
-        try (Response response = CLIENT.newCall(httpRequest).execute()) {
-            String responseBody = response.body() != null ? response.body().string() : null;
+        try (Response response = client.newCall(httpRequest).execute()) {
+            String responseBody = response.body().string();
 
             if (responseBody == null) {
                 throw new GradleException(UPLOAD_FAILED_ERROR + "Response body is empty");
@@ -200,7 +217,7 @@ public class SwaggerHubClient {
      * @param mediaType the media type for the request
      * @return a configured Request object
      */
-    private Request buildGetRequest(HttpUrl httpUrl, MediaType mediaType) {
+    private Request buildGetRequest(final HttpUrl httpUrl, final MediaType mediaType) {
         Request.Builder requestBuilder =
                 new Request.Builder()
                         .url(httpUrl)
@@ -220,7 +237,8 @@ public class SwaggerHubClient {
      * @param content the content of the API definition
      * @return a configured Request object
      */
-    private Request buildPostRequest(HttpUrl httpUrl, MediaType mediaType, String content) {
+    private Request buildPostRequest(
+            final HttpUrl httpUrl, final MediaType mediaType, final String content) {
         return new Request.Builder()
                 .url(httpUrl)
                 .addHeader("Content-Type", mediaType.toString())
@@ -237,8 +255,8 @@ public class SwaggerHubClient {
      * @param content the version to set as default
      * @return a configured Request object
      */
-    private Request buildPutRequest(HttpUrl httpUrl, String content) {
-        String jsonBody = "{\"version\": \"" + content + "\"}";
+    private Request buildPutRequest(final HttpUrl httpUrl, final String content) {
+        String jsonBody = String.format("{\"version\": \"%s\"}", content);
 
         return new Request.Builder()
                 .url(httpUrl)
@@ -257,7 +275,7 @@ public class SwaggerHubClient {
      * @param swaggerHubRequest the request containing API details
      * @return the constructed HttpUrl for downloading the API definition
      */
-    private HttpUrl getDownloadUrl(SwaggerHubRequest swaggerHubRequest) {
+    private HttpUrl getDownloadUrl(final SwaggerHubRequest swaggerHubRequest) {
         return getBaseUrl(swaggerHubRequest.getOwner(), swaggerHubRequest.getApi())
                 .addEncodedPathSegment(swaggerHubRequest.getVersion())
                 .addQueryParameter("resolved", String.valueOf(swaggerHubRequest.getResolved()))
@@ -270,7 +288,7 @@ public class SwaggerHubClient {
      * @param swaggerHubRequest the request containing API details
      * @return the constructed HttpUrl for uploading the API definition
      */
-    private HttpUrl getUploadUrl(SwaggerHubRequest swaggerHubRequest) {
+    private HttpUrl getUploadUrl(final SwaggerHubRequest swaggerHubRequest) {
         return getBaseUrl(swaggerHubRequest.getOwner(), swaggerHubRequest.getApi())
                 .addEncodedQueryParameter("version", swaggerHubRequest.getVersion())
                 .addEncodedQueryParameter(
@@ -285,7 +303,7 @@ public class SwaggerHubClient {
      * @param swaggerHubRequest the request containing API details
      * @return the constructed HttpUrl for setting the default version
      */
-    private HttpUrl getDefaultVersionUrl(SwaggerHubRequest swaggerHubRequest) {
+    private HttpUrl getDefaultVersionUrl(final SwaggerHubRequest swaggerHubRequest) {
         return getBaseUrl(swaggerHubRequest.getOwner(), swaggerHubRequest.getApi())
                 .addEncodedPathSegment("settings")
                 .addEncodedPathSegment("default")
@@ -299,15 +317,12 @@ public class SwaggerHubClient {
      * @param api the name of the API
      * @return a HttpUrl.Builder configured with the base URL
      */
-    private HttpUrl.Builder getBaseUrl(String owner, String api) {
-        return new HttpUrl.Builder()
-                .scheme(protocol)
-                .host(host)
-                .port(port)
-                .addPathSegment(onPremise ? onPremiseAPISuffix : "")
-                .addPathSegment(APIS)
-                .addEncodedPathSegment(owner)
-                .addEncodedPathSegment(api);
+    private HttpUrl.Builder getBaseUrl(final String owner, final String api) {
+        HttpUrl.Builder builder = new HttpUrl.Builder().scheme(protocol).host(host).port(port);
+        if (Boolean.TRUE.equals(onPremise)) {
+            builder.addPathSegment(onPremiseAPISuffix);
+        }
+        return builder.addPathSegment(APIS).addEncodedPathSegment(owner).addEncodedPathSegment(api);
     }
 
     /**
@@ -317,7 +332,7 @@ public class SwaggerHubClient {
      * @param swaggerHubRequest the request containing the format
      * @return a MediaType object representing the requested format
      */
-    private MediaType getMediaType(SwaggerHubRequest swaggerHubRequest) {
+    private MediaType getMediaType(final SwaggerHubRequest swaggerHubRequest) {
         String headerFormat = "application/%s; charset=utf-8";
         MediaType mediaType =
                 MediaType.parse(String.format(headerFormat, swaggerHubRequest.getFormat()));
