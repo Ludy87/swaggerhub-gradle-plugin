@@ -109,7 +109,6 @@ jobs:
             --key ./cosign.key \
             --yes \
             --output-signature ./swaggerhub-V2-${{ needs.build.outputs.version }}.jar.sig \
-            --bundle ./swaggerhub-V2-${{ needs.build.outputs.version }}.jar.sig.bundle \
             ./swaggerhub-V2-${{ needs.build.outputs.version }}.jar
 
           cosign attest-blob \
@@ -117,12 +116,20 @@ jobs:
             --key ./cosign.key \
             --yes \
             --output-attestation ./swaggerhub-V2-${{ needs.build.outputs.version }}.jar.intoto.jsonl \
+            --bundle ./swaggerhub-V2-${{ needs.build.outputs.version }}.jar.intoto.bundle \
             ./swaggerhub-V2-${{ needs.build.outputs.version }}.jar
 
           cosign verify-blob \
             --key ./cosign.pub \
-            --bundle ./swaggerhub-V2-${{ needs.build.outputs.version }}.jar.sig.bundle \
+            --signature ./swaggerhub-V2-${{ needs.build.outputs.version }}.jar.sig \
             ./swaggerhub-V2-${{ needs.build.outputs.version }}.jar
+
+          cosign verify-blob-attestation \
+            --bundle ./swaggerhub-V2-${{ needs.build.outputs.version }}.jar.intoto.bundle \
+            --key ./cosign.pub \
+            --type unused \  # oder dein Predicate-Type
+            --digestAlg sha256 \
+            --digest "$(sha256sum ./swaggerhub-V2-${{ needs.build.outputs.version }}.jar | cut -d' ' -f1)"
 
       - name: Display structure of downloaded files
         run: ls -R
