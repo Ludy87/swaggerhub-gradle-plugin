@@ -3,10 +3,6 @@ repos:
     rev: v8.28.0
     hooks:
       - id: gitleaks
-  - repo: https://github.com/gherynos/pre-commit-java
-    rev: v0.6.21
-    hooks:
-      - id: checkstyle
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0
     hooks:

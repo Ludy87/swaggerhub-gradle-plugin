@@ -53,7 +53,7 @@ public class SwaggerHubRequest {
     /** Version of the API. */
     private String version;
 
-    /** Version of the API. */
+    /** API definition content (Swagger/OpenAPI specification). */
     private String swagger;
 
     /** API format such as OAS version. */

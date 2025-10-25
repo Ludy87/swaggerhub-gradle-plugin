@@ -95,7 +95,7 @@ public class DownloadTask extends DefaultTask {
     /** Signals if an on-premise instance is used. */
     @Input @Optional private Boolean onPremise = false;
 
-    /** Signals if an on-premise instance is used. */
+    /** API suffix to use for on-premise SwaggerHub installations (e.g., "v1"). */
     @Input @Optional private String onPremiseAPISuffix = "v1";
 
     /** SwaggerHub client used for the download. */

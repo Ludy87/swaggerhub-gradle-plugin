@@ -45,6 +45,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import okhttp3.ResponseBody;
 
 /** Client for interacting with the SwaggerHub API. */
 @Getter
@@ -149,10 +150,14 @@ public class SwaggerHubClient {
         Request requestBuilder = buildGetRequest(httpUrl, mediaType);
 
         try (Response response = client.newCall(requestBuilder).execute()) {
-            String responseBody = response.body().string();
-            if (responseBody == null) {
+            ResponseBody body = response.body();
+            if (body == null) {
                 throw new GradleException(DOWNLOAD_FAILED_ERROR + "Response body is empty");
-            } else if (!response.isSuccessful()) {
+            }
+
+            String responseBody = body.string();
+
+            if (!response.isSuccessful()) {
                 throw new GradleException(DOWNLOAD_FAILED_ERROR + responseBody);
             } else {
                 return responseBody;
@@ -174,11 +179,14 @@ public class SwaggerHubClient {
         Request httpRequest = buildPostRequest(httpUrl, mediaType, swaggerHubRequest.getSwagger());
 
         try (Response response = client.newCall(httpRequest).execute()) {
-            String responseBody = response.body().string();
-
-            if (responseBody == null) {
+            ResponseBody body = response.body();
+            if (body == null) {
                 throw new GradleException(UPLOAD_FAILED_ERROR + "Response body is empty");
-            } else if (!response.isSuccessful()) {
+            }
+
+            String responseBody = body.string();
+
+            if (!response.isSuccessful()) {
                 throw new GradleException(UPLOAD_FAILED_ERROR + responseBody);
             }
         } catch (IOException e) {
@@ -198,11 +206,14 @@ public class SwaggerHubClient {
         Request httpRequest = buildPutRequest(httpUrl, swaggerHubRequest.getVersion());
 
         try (Response response = client.newCall(httpRequest).execute()) {
-            String responseBody = response.body().string();
-
-            if (responseBody == null) {
+            ResponseBody body = response.body();
+            if (body == null) {
                 throw new GradleException(UPLOAD_FAILED_ERROR + "Response body is empty");
-            } else if (!response.isSuccessful()) {
+            }
+
+            String responseBody = body.string();
+
+            if (!response.isSuccessful()) {
                 throw new GradleException(UPLOAD_FAILED_ERROR + responseBody);
             }
         } catch (IOException e) {
