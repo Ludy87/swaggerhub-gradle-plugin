@@ -51,28 +51,57 @@ import io.github.ludy87.swagger.swaggerhub.v2.client.SwaggerHubRequest;
 
 import lombok.Getter;
 import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
 
-/** Uploads API definition to SwaggerHub */
-@Slf4j
+/** Uploads API definition to SwaggerHub. */
 @Getter
 @Setter
 public class UploadTask extends DefaultTask {
+    /** Logger instance for the task. */
     private static final Logger LOGGER = Logging.getLogger(UploadTask.class);
+
+    /** Default HTTPS port used by SwaggerHub. */
+    private static final int DEFAULT_PORT = 443;
+
+    /** API owner. */
     @Input private String owner;
+
+    /** API identifier. */
     @Input private String api;
+
+    /** API version. */
     @Input private String version;
+
+    /** Authentication token. */
     @Input private String token;
+
+    /** Path to the API definition file. */
     @InputFile private String inputFile;
+
+    /** Flag indicating whether the API is private. */
     @Input private Boolean isPrivate = false;
+
+    /** SwaggerHub host name. */
     @Input @Optional private String host = "api.swaggerhub.com";
-    @Input @Optional private Integer port = 443;
+
+    /** SwaggerHub port. */
+    @Input @Optional private Integer port = DEFAULT_PORT;
+
+    /** Protocol used for requests. */
     @Input @Optional private String protocol = "https";
+
+    /** Response format. */
     @Input @Optional private String format = "json";
+
+    /** OAS version. */
     @Input @Optional private String oas = "2.0";
+
+    /** Indicates that an on-premise instance is used. */
     @Input @Optional private Boolean onPremise = false;
+
+    /** On-premise API suffix. */
     @Input @Optional private String onPremiseAPISuffix = "v1";
 
+    /** SwaggerHub client used to perform the upload. */
     @Internal private SwaggerHubClient swaggerHubClient;
 
     /**
@@ -86,8 +115,8 @@ public class UploadTask extends DefaultTask {
                 SwaggerHubClient.createOnPremise(
                         host, port, protocol, token, onPremise, onPremiseAPISuffix);
         LOGGER.info(
-                "Uploading to {}: api: {}, owner: {}, version: {}, inputFile: {}, format: {},"
-                        + " isPrivate: {}, oas: {}, onPremise: {}, onPremiseAPISuffix: {} ",
+                "Uploading to {}: api={}, owner={}, version={}, inputFile={}, format={}, "
+                        + "isPrivate={}, oas={}, onPremise={}, onPremiseAPISuffix={}",
                 host,
                 api,
                 owner,
@@ -96,7 +125,6 @@ public class UploadTask extends DefaultTask {
                 format,
                 isPrivate,
                 oas,
-                inputFile,
                 onPremise,
                 onPremiseAPISuffix);
 

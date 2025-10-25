@@ -14,7 +14,13 @@
  */
 package io.github.ludy87.swagger.swaggerhub.v2.gradle;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.client.WireMock.configureFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalToIgnoreCase;
+import static com.github.tomakehurst.wiremock.client.WireMock.noContent;
+import static com.github.tomakehurst.wiremock.client.WireMock.put;
+import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static org.gradle.testkit.runner.TaskOutcome.SUCCESS;
 import static org.junit.Assert.assertEquals;
 
@@ -33,15 +39,19 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
-import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.matching.UrlPathPattern;
 
 import io.github.ludy87.swagger.swaggerhub.v2.client.SwaggerHubRequest;
 
+@SuppressWarnings({"checkstyle:MissingJavadocMethod", "checkstyle:JavadocVariable"})
 public class SwaggerHubSetDefaultVersionTest {
 
+    /** Temporary directory for the generated Gradle project. */
     @Rule public final TemporaryFolder testProjectDir = new TemporaryFolder();
+
+    /** Name of the Gradle task under test. */
     private static final String SETDEFAULTVERSION_TASK = "swaggerhubSetDefaultVersion";
+
     private WireMockServer wireMockServer;
     private File buildFile;
 
@@ -49,7 +59,7 @@ public class SwaggerHubSetDefaultVersionTest {
     private final String owner = "testUser";
     private final String version = "1.1.0";
     private final String host = "localhost";
-    private final String port = "8089";
+    private final String serverPort = "8089";
     private final String token = "dUmMyTokEn.1234abc";
 
     @Before
@@ -67,12 +77,12 @@ public class SwaggerHubSetDefaultVersionTest {
         SwaggerHubRequest request =
                 SwaggerHubRequest.builder().api(api).owner(owner).version(version).build();
 
-        setupServerMockingPUT(request, port, token);
+        setupServerMockingPUT(request, serverPort, token);
 
         assertEquals(SUCCESS, runBuild(request));
     }
 
-    private TaskOutcome runBuild(SwaggerHubRequest request) throws IOException {
+    private TaskOutcome runBuild(final SwaggerHubRequest request) throws IOException {
         createBuildFile(request);
 
         BuildResult result =
@@ -85,7 +95,7 @@ public class SwaggerHubSetDefaultVersionTest {
         return result.task(":" + SETDEFAULTVERSION_TASK).getOutcome();
     }
 
-    private void createBuildFile(SwaggerHubRequest request) throws IOException {
+    private void createBuildFile(final SwaggerHubRequest request) throws IOException {
         String buildFileContent =
                 "plugins { id 'io.github.ludy87.swagger.swaggerhub.v2' }\n"
                         + SETDEFAULTVERSION_TASK
@@ -94,7 +104,7 @@ public class SwaggerHubSetDefaultVersionTest {
                         + host
                         + "'\n"
                         + "    port "
-                        + port
+                        + serverPort
                         + "\n"
                         + "    protocol 'http'\n"
                         + "    api '"
@@ -114,8 +124,9 @@ public class SwaggerHubSetDefaultVersionTest {
         Files.write(buildFile.toPath(), buildFileContent.getBytes());
     }
 
-    private void setupServerMockingPUT(SwaggerHubRequest request, String port, String token) {
-        startMockServer(Integer.parseInt(port));
+    private void setupServerMockingPUT(
+            final SwaggerHubRequest request, final String portValue, final String authToken) {
+        startMockServer(Integer.parseInt(portValue));
         String jsonBody = "{\"version\": \"" + request.getVersion() + "\"}";
 
         UrlPathPattern url =
@@ -130,15 +141,15 @@ public class SwaggerHubSetDefaultVersionTest {
                 put(url).withHeader(
                                 "Content-Type",
                                 equalToIgnoreCase("application/json; charset=UTF-8"))
-                        .withHeader("Authorization", equalTo(token))
+                        .withHeader("Authorization", equalTo(authToken))
                         .withHeader("User-Agent", equalTo("swaggerhub-gradle-plugin"))
                         .withRequestBody(equalTo(jsonBody))
                         .willReturn(noContent()));
     }
 
-    private void startMockServer(int port) {
-        wireMockServer = new WireMockServer(port);
+    private void startMockServer(final int httpPort) {
+        wireMockServer = new WireMockServer(httpPort);
         wireMockServer.start();
-        WireMock.configureFor(host, wireMockServer.port());
+        configureFor(host, wireMockServer.port());
     }
 }
