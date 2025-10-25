@@ -82,7 +82,7 @@ public class SwaggerHubClient {
     private final String onPremiseAPISuffix;
 
     /** HTTP client used to execute requests. */
-    private final OkHttpClient client;
+    @Builder.Default private final OkHttpClient client = DEFAULT_CLIENT;
 
     /**
      * Creates a SwaggerHubClient for public SwaggerHub instances.
