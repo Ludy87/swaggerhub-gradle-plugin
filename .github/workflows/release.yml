@@ -109,6 +109,7 @@ jobs:
             --key ./cosign.key \
             --yes \
             --output-signature ./swaggerhub-V2-${{ needs.build.outputs.version }}.jar.sig \
+            --bundle ./swaggerhub-V2-${{ needs.build.outputs.version }}.jar.sig.bundle \
             ./swaggerhub-V2-${{ needs.build.outputs.version }}.jar
 
           cosign attest-blob \
@@ -121,13 +122,13 @@ jobs:
 
           cosign verify-blob \
             --key ./cosign.pub \
-            --signature ./swaggerhub-V2-${{ needs.build.outputs.version }}.jar.sig \
+            --bundle ./swaggerhub-V2-${{ needs.build.outputs.version }}.jar.sig.bundle \
             ./swaggerhub-V2-${{ needs.build.outputs.version }}.jar
 
           cosign verify-blob-attestation \
             --bundle ./swaggerhub-V2-${{ needs.build.outputs.version }}.jar.intoto.bundle \
             --key ./cosign.pub \
-            --type unused \  # oder dein Predicate-Type
+            --type unused \
             --digestAlg sha256 \
             --digest "$(sha256sum ./swaggerhub-V2-${{ needs.build.outputs.version }}.jar | cut -d' ' -f1)"
 
