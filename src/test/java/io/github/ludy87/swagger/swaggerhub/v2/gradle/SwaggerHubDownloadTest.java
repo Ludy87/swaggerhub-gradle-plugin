@@ -62,6 +62,7 @@ import org.junit.rules.TemporaryFolder;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 
+@SuppressWarnings({"checkstyle:MissingJavadocMethod", "checkstyle:JavadocVariable"})
 public class SwaggerHubDownloadTest {
     private static final String DOWNLOAD_TASK = "swaggerhubDownload";
     @Rule public WireMockRule wireMockRule = new WireMockRule(wireMockConfig().dynamicPort());

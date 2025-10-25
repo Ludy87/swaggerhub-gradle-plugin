@@ -37,25 +37,40 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
-/**
- * Represents a request to SwaggerHub for API operations. This class is used to encapsulate the
- * parameters required for API requests.
- */
+/** Represents the payload sent to SwaggerHub operations. */
 @Getter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
 public class SwaggerHubRequest {
+    /** Name of the API. */
     private String api;
+
+    /** Owner of the API. */
     private String owner;
+
+    /** Version of the API. */
     private String version;
+
+    /** API definition content (Swagger/OpenAPI specification). */
     private String swagger;
+
+    /** API format such as OAS version. */
     private String oas;
 
+    /** Desired output format. */
     @Builder.Default private String format = "json";
+
+    /** Indicates whether the API is private. */
     @Builder.Default private Boolean isPrivate = false;
+
+    /** Whether resolved API definition should be retrieved. */
     @Builder.Default private Boolean resolved = false;
+
+    /** Indicates that the request targets an on-premise installation. */
     @Builder.Default private Boolean onPremise = false;
+
+    /** API suffix for on-premise installations. */
     @Builder.Default private String onPremiseAPISuffix = "v1";
 }

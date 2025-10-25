@@ -66,6 +66,7 @@ import com.github.tomakehurst.wiremock.matching.UrlPathPattern;
 
 import io.github.ludy87.swagger.swaggerhub.v2.client.SwaggerHubRequest;
 
+@SuppressWarnings({"checkstyle:MissingJavadocMethod", "checkstyle:JavadocVariable"})
 public class SwaggerHubUploadTest {
 
     @Rule public final TemporaryFolder testProjectDir = new TemporaryFolder();
@@ -79,7 +80,7 @@ public class SwaggerHubUploadTest {
     private final String owner = "testUser";
     private final String version = "1.1.0";
     private final String host = "localhost";
-    private final String port = "8089";
+    private final String serverPort = "8089";
     private final String token = "dUmMyTokEn.1234abc";
     private String swagger;
 
@@ -107,7 +108,7 @@ public class SwaggerHubUploadTest {
                         .swagger(swagger)
                         .build();
 
-        setupServerMocking(request, port, token);
+        setupServerMocking(request, serverPort, token);
         assertEquals(SUCCESS, runBuild(request));
     }
 
@@ -125,7 +126,7 @@ public class SwaggerHubUploadTest {
                         .swagger(swagger)
                         .build();
 
-        setupServerMocking(request, port, token);
+        setupServerMocking(request, serverPort, token);
         assertEquals(SUCCESS, runBuild(request));
     }
 
@@ -144,7 +145,7 @@ public class SwaggerHubUploadTest {
                         .isPrivate(true)
                         .build();
 
-        setupServerMocking(request, port, token);
+        setupServerMocking(request, serverPort, token);
         assertEquals(SUCCESS, runBuild(request));
     }
 
@@ -162,7 +163,7 @@ public class SwaggerHubUploadTest {
                         .swagger(swagger)
                         .build();
 
-        setupServerMocking(request, port, token);
+        setupServerMocking(request, serverPort, token);
         assertEquals(SUCCESS, runBuild(request));
     }
 
@@ -182,11 +183,11 @@ public class SwaggerHubUploadTest {
                         .swagger(swagger)
                         .build();
 
-        setupServerMocking(request, port, token);
+        setupServerMocking(request, serverPort, token);
         assertEquals(SUCCESS, runBuild(request));
     }
 
-    private TaskOutcome runBuild(SwaggerHubRequest request) throws IOException {
+    private TaskOutcome runBuild(final SwaggerHubRequest request) throws IOException {
         createBuildFile(request);
 
         BuildResult result =
@@ -199,7 +200,7 @@ public class SwaggerHubUploadTest {
         return result.task(":" + UPLOAD_TASK).getOutcome();
     }
 
-    private void createBuildFile(SwaggerHubRequest request) throws IOException {
+    private void createBuildFile(final SwaggerHubRequest request) throws IOException {
         // Convert Windows path to use slashes for Gradle config
         String filePath = inputFile.toString().replace("\\", "/");
 
@@ -211,7 +212,7 @@ public class SwaggerHubUploadTest {
                         + host
                         + "'\n"
                         + "    port "
-                        + port
+                        + serverPort
                         + "\n"
                         + "    protocol 'http'\n"
                         + "    api '"
@@ -236,19 +237,19 @@ public class SwaggerHubUploadTest {
         Files.write(buildFile.toPath(), buildFileContent.getBytes());
     }
 
-    private String getIsPrivateSetting(Boolean isPrivate) {
+    private String getIsPrivateSetting(final Boolean isPrivate) {
         // false is default, so only include if set to true
         return isPrivate ? String.format("    isPrivate %s\n", isPrivate) : "";
     }
 
-    private String getFormatSetting(String format) {
+    private String getFormatSetting(final String format) {
         // json is default, so only include if set to yaml
         return StringUtils.isNotBlank(format) && "yaml".equals(format)
                 ? String.format("    format '%s'\n", format)
                 : "";
     }
 
-    private void copyInputFile(String originalFile, File outputDir)
+    private void copyInputFile(final String originalFile, final File outputDir)
             throws IOException, URISyntaxException {
         Path copied = Paths.get(outputDir.getPath(), originalFile);
         Path originalFilePath =
@@ -256,19 +257,19 @@ public class SwaggerHubUploadTest {
         Files.copy(originalFilePath, copied, StandardCopyOption.REPLACE_EXISTING);
     }
 
-    private Path getInputFilePath(String filename) {
+    private Path getInputFilePath(final String filename) {
         return Paths.get(testProjectDir.getRoot().toString(), filename);
     }
 
     private UrlPathPattern setupServerMocking(
-            SwaggerHubRequest request, String port, String token) {
+            final SwaggerHubRequest request, final String portValue, final String authToken) {
         String api = request.getApi();
         String owner = request.getOwner();
         String version = request.getVersion();
         String format = request.getFormat();
         String isPrivate = Boolean.toString(Boolean.TRUE.equals(request.getIsPrivate()));
 
-        startMockServer(Integer.parseInt(port));
+        startMockServer(Integer.parseInt(portValue));
 
         UrlPathPattern url = urlPathEqualTo("/apis/" + owner + "/" + api);
 
@@ -282,7 +283,7 @@ public class SwaggerHubUploadTest {
                                         String.format(
                                                 "application/%s; charset=UTF-8",
                                                 format != null ? format : "json")))
-                        .withHeader("Authorization", equalTo(token))
+                        .withHeader("Authorization", equalTo(authToken))
                         .withHeader("User-Agent", equalTo("swaggerhub-gradle-plugin"))
                         .withRequestBody(equalTo(request.getSwagger()))
                         .willReturn(created()));
@@ -290,8 +291,8 @@ public class SwaggerHubUploadTest {
         return url;
     }
 
-    private void startMockServer(int port) {
-        wireMockServer = new WireMockServer(options().port(port));
+    private void startMockServer(final int httpPort) {
+        wireMockServer = new WireMockServer(options().port(httpPort));
         wireMockServer.start();
         WireMock.configureFor(host, wireMockServer.port());
     }
