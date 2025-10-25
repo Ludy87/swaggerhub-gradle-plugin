@@ -109,6 +109,7 @@ jobs:
             --key ./cosign.key \
             --yes \
             --output-signature ./swaggerhub-V2-${{ needs.build.outputs.version }}.jar.sig \
+            --bundle ./swaggerhub-V2-${{ needs.build.outputs.version }}.jar.sig.bundle \
             ./swaggerhub-V2-${{ needs.build.outputs.version }}.jar
 
           cosign attest-blob \
@@ -120,7 +121,7 @@ jobs:
 
           cosign verify-blob \
             --key ./cosign.pub \
-            --signature ./swaggerhub-V2-${{ needs.build.outputs.version }}.jar.sig \
+            --bundle ./swaggerhub-V2-${{ needs.build.outputs.version }}.jar.sig.bundle \
             ./swaggerhub-V2-${{ needs.build.outputs.version }}.jar
 
       - name: Display structure of downloaded files
