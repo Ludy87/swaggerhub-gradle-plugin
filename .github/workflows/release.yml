@@ -72,7 +72,7 @@ jobs:
           mv "./build/libs/swaggerhub-V2-${{ needs.read_versions.outputs.version }}.jar" ./binaries/swaggerhub-V2-${{ steps.versionNumber.outputs.versionNumber }}.jar
 
       - name: Upload build artifacts
-        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           retention-days: 1
           if-no-files-found: error
@@ -136,7 +136,7 @@ jobs:
         run: ls -R
 
       - name: Upload signed artifacts
-        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           retention-days: 1
           if-no-files-found: error
