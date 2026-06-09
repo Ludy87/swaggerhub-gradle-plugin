@@ -40,6 +40,7 @@ import java.nio.file.Paths;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;
 import org.gradle.api.logging.Logging;
+import org.gradle.api.tasks.DisableCachingByDefault;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.Optional;
@@ -55,6 +56,8 @@ import lombok.Setter;
 /** Downloads API definitions from SwaggerHub. */
 @Getter
 @Setter
+@DisableCachingByDefault(
+        because = "Task communicates with SwaggerHub and has network side effects.")
 public class DownloadTask extends DefaultTask {
     /** Logger instance for the task. */
     private static final Logger LOGGER = Logging.getLogger(DownloadTask.class);

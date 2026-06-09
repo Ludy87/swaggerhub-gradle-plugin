@@ -39,10 +39,13 @@ import java.nio.file.Paths;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;
 import org.gradle.api.logging.Logging;
+import org.gradle.api.tasks.DisableCachingByDefault;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFile;
 import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.Optional;
+import org.gradle.api.tasks.PathSensitive;
+import org.gradle.api.tasks.PathSensitivity;
 import org.gradle.api.tasks.TaskAction;
 import org.slf4j.Logger;
 
@@ -55,6 +58,8 @@ import lombok.Setter;
 /** Uploads API definition to SwaggerHub. */
 @Getter
 @Setter
+@DisableCachingByDefault(
+        because = "Task communicates with SwaggerHub and has network side effects.")
 public class UploadTask extends DefaultTask {
     /** Logger instance for the task. */
     private static final Logger LOGGER = Logging.getLogger(UploadTask.class);
@@ -75,7 +80,9 @@ public class UploadTask extends DefaultTask {
     @Input private String token;
 
     /** Path to the API definition file. */
-    @InputFile private String inputFile;
+    @InputFile
+    @PathSensitive(PathSensitivity.RELATIVE)
+    private String inputFile;
 
     /** Flag indicating whether the API is private. */
     @Input private Boolean isPrivate = false;
