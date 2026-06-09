@@ -21,6 +21,7 @@ import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.Optional;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.work.DisableCachingByDefault;
 import org.slf4j.Logger;
 
 import io.github.ludy87.swagger.swaggerhub.v2.client.SwaggerHubClient;
@@ -35,6 +36,8 @@ import lombok.Setter;
  */
 @Getter
 @Setter
+@DisableCachingByDefault(
+        because = "Task communicates with SwaggerHub and has network side effects.")
 public class SetDefaultVersion extends DefaultTask {
     /** Logger instance for the task. */
     private static final Logger LOGGER = Logging.getLogger(SetDefaultVersion.class);
