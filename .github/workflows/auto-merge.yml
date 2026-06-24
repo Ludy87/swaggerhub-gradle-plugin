@@ -1,0 +1,49 @@
+name: Auto-merge dependency updates
+
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened, ready_for_review]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: auto-merge-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  dependabot:
+    name: Enable auto-merge for Dependabot
+    if: >-
+      ${{
+        github.event_name == 'pull_request_target' &&
+        github.actor == 'dependabot[bot]' &&
+        github.event.pull_request.draft == false
+      }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411 # v2.19.4
+        with:
+          egress-policy: audit
+
+      - name: Generate GitHub App Token
+        id: generate-token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          client-id: ${{ secrets.GH_APP_ID }}
+          private-key: ${{ secrets.GH_APP_PRIVATE_KEY }}
+
+      - name: Approve Dependabot pull request
+        run: gh pr review "${PR_URL}" --approve --body "Automatische Freigabe für Dependabot nach erfolgreichen Pflichtchecks."
+        env:
+          GH_TOKEN: ${{ steps.generate-token.outputs.token }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+
+      - name: Enable auto-merge
+        run: gh pr merge "${PR_URL}" --auto --squash --delete-branch
+        env:
+          GH_TOKEN: ${{ steps.generate-token.outputs.token }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
