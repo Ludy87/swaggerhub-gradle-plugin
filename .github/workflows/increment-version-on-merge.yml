@@ -1,0 +1,66 @@
+name: Increment version after merge
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [main]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: increment-version-main
+  cancel-in-progress: false
+
+jobs:
+  increment-version:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Check for Java or Gradle changes
+        id: version-trigger
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          MERGE_SHA: ${{ github.event.pull_request.merge_commit_sha }}
+        run: |
+          changed_files="$(git diff --name-only "$BASE_SHA" "$MERGE_SHA")"
+          if printf '%s\n' "$changed_files" | grep -Eq '(^|/).*\.java$|(^|/).*\.gradle(\.kts)?$|^gradle/|^gradlew(\.bat)?$'; then
+            echo "eligible=true" >> "$GITHUB_OUTPUT"
+            echo "Java or Gradle changes detected; incrementing version."
+          else
+            echo "eligible=false" >> "$GITHUB_OUTPUT"
+            echo "No Java or Gradle changes detected; skipping version increment."
+          fi
+
+      - name: Set up JDK 21
+        if: steps.version-trigger.outputs.eligible == 'true'
+        uses: actions/setup-java@dded0888837ed1f317902acf8a20df0ad188d165 # v5.0.0
+        with:
+          java-version: "21"
+          distribution: temurin
+          cache: gradle
+
+      - name: Set execute permissions for Gradle Wrapper
+        if: steps.version-trigger.outputs.eligible == 'true'
+        run: chmod +x gradlew
+
+      - name: Increment version
+        if: steps.version-trigger.outputs.eligible == 'true'
+        run: ./gradlew incrementVersion
+
+      - name: Commit and push version change
+        if: steps.version-trigger.outputs.eligible == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add version.properties
+          git diff --cached --quiet && exit 0
+          git commit -m "chore: increment version [skip ci]"
+          git push origin HEAD:main
