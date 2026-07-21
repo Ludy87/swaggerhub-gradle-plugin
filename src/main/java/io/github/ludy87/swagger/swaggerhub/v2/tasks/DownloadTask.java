@@ -108,7 +108,9 @@ public class DownloadTask extends DefaultTask {
      */
     @TaskAction
     public void downloadDefinition() throws GradleException {
-        swaggerHubClient = SwaggerHubClient.create(host, port, protocol, token);
+        swaggerHubClient =
+                SwaggerHubClient.createOnPremise(
+                        host, port, protocol, token, onPremise, onPremiseAPISuffix);
 
         LOGGER.info(
                 "Downloading from {}: api={}, owner={}, version={}, format={}, "
@@ -130,6 +132,8 @@ public class DownloadTask extends DefaultTask {
                         .version(version)
                         .format(format)
                         .resolved(resolved)
+                        .onPremise(onPremise)
+                        .onPremiseAPISuffix(onPremiseAPISuffix)
                         .build();
 
         try {

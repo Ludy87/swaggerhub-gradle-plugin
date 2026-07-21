@@ -1,8 +1,8 @@
 plugins {
     id 'groovy'
     id 'java-gradle-plugin'
-    id "com.gradle.plugin-publish" version "2.0.0"
-    id "com.diffplug.spotless" version "8.0.0"
+    id "com.gradle.plugin-publish" version "2.1.1"
+    id "com.diffplug.spotless" version "8.8.0"
 }
 
 java {
@@ -97,11 +97,6 @@ tasks.register("incrementVersion") {
         setVersionToFile(newVersion)
         println "Neue Version: $newVersion"
     }
-}
-
-// Erhöhe die Version nach einem erfolgreichen Build
-tasks.named("build") {
-    finalizedBy("incrementVersion")
 }
 
 tasks.withType(JavaCompile).configureEach {
