@@ -60,11 +60,11 @@ def getVersionFromFile = {
 }
 
 // Version hochzählen
-def incrementVersion = { version ->
-    def parts = version.tokenize('.')
-    if (parts.size() < 3) return "2.0.0" // Falls defekt, Standard setzen
-    def patch = parts[2].toInteger() + 1
-    return "${parts[0]}.${parts[1]}.${patch}"
+def incrementVersion = { currentVersion ->
+    def matcher = currentVersion =~ /^(\d+)\.(\d+)\.(\d+)$/
+    if (!matcher.matches()) return "2.0.0" // Falls defekt, Standard setzen
+    def patch = matcher.group(3).toInteger() + 1
+    return "${matcher.group(1)}.${matcher.group(2)}.${patch}"
 }
 
 // Schreibe die neue Version zurück in die Datei
