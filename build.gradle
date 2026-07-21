@@ -99,11 +99,6 @@ tasks.register("incrementVersion") {
     }
 }
 
-// Erhöhe die Version nach einem erfolgreichen Build
-tasks.named("build") {
-    finalizedBy("incrementVersion")
-}
-
 tasks.withType(JavaCompile).configureEach {
     options.encoding = "UTF-8"
     dependsOn "spotlessApply"
