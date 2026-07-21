@@ -7,6 +7,7 @@ on:
 
 permissions:
   contents: write
+  pull-requests: write
 
 concurrency:
   group: increment-version-main
@@ -24,21 +25,23 @@ jobs:
           ref: main
           fetch-depth: 0
 
-      - name: Check for workflow changes
-        id: workflow-changes
+      - name: Check for Java or Gradle changes
+        id: version-trigger
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
           MERGE_SHA: ${{ github.event.pull_request.merge_commit_sha }}
         run: |
-          if git diff --name-only "$BASE_SHA" "$MERGE_SHA" | grep -q '^\.github/workflows/'; then
-            echo "changed=true" >> "$GITHUB_OUTPUT"
-            echo "Workflow changes detected; skipping version increment."
+          changed_files="$(git diff --name-only "$BASE_SHA" "$MERGE_SHA")"
+          if printf '%s\n' "$changed_files" | grep -Eq '(^|/).*\.java$|(^|/).*\.gradle(\.kts)?$|^gradle/|^gradlew(\.bat)?$'; then
+            echo "eligible=true" >> "$GITHUB_OUTPUT"
+            echo "Java or Gradle changes detected; incrementing version."
           else
-            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "eligible=false" >> "$GITHUB_OUTPUT"
+            echo "No Java or Gradle changes detected; skipping version increment."
           fi
 
       - name: Set up JDK 21
-        if: steps.workflow-changes.outputs.changed != 'true'
+        if: steps.version-trigger.outputs.eligible == 'true'
         uses: actions/setup-java@dded0888837ed1f317902acf8a20df0ad188d165 # v5.0.0
         with:
           java-version: "21"
@@ -46,19 +49,29 @@ jobs:
           cache: gradle
 
       - name: Set execute permissions for Gradle Wrapper
-        if: steps.workflow-changes.outputs.changed != 'true'
+        if: steps.version-trigger.outputs.eligible == 'true'
         run: chmod +x gradlew
 
       - name: Increment version
-        if: steps.workflow-changes.outputs.changed != 'true'
+        if: steps.version-trigger.outputs.eligible == 'true'
         run: ./gradlew incrementVersion
 
-      - name: Commit and push version change
-        if: steps.workflow-changes.outputs.changed != 'true'
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add version.properties
-          git diff --cached --quiet && exit 0
-          git commit -m "chore: increment version [skip ci]"
-          git push origin HEAD:main
+      - name: Generate GitHub App Token
+        if: steps.version-trigger.outputs.eligible == 'true'
+        id: generate-token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          client-id: ${{ secrets.GH_APP_ID }}
+          private-key: ${{ secrets.GH_APP_PRIVATE_KEY }}
+
+      - name: Create version update pull request
+        if: steps.version-trigger.outputs.eligible == 'true'
+        uses: peter-evans/create-pull-request@271a8d0340265f705b14b6d32b9829c1cb33d45e # v7.0.8
+        with:
+          token: ${{ steps.generate-token.outputs.token }}
+          commit-message: "chore: increment version"
+          title: "chore: increment version"
+          body: "Automatically increments the plugin version after Java or Gradle changes are merged into main."
+          branch: automated/increment-version
+          delete-branch: true
+          sign-commits: true
