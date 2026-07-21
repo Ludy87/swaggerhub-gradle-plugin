@@ -171,6 +171,37 @@ public class SwaggerHubDownloadTest {
                 getRequestedFor(urlEqualTo("/apis/swagger-hub/test-api/1.0.0?resolved=true")));
     }
 
+    @Test
+    public void usesOnPremiseApiPrefix() throws IOException {
+        stubFor(WireMock.get(anyUrl()).willReturn(WireMock.ok("on-premise")));
+
+        String buildFileContent =
+                "plugins { id 'io.github.ludy87.swagger.swaggerhub.v2' }\n"
+                        + DOWNLOAD_TASK
+                        + " {\n"
+                        + "    protocol 'http'\n"
+                        + "    host 'localhost'\n"
+                        + "    port "
+                        + wireMockRule.port()
+                        + "\n"
+                        + "    onPremise true\n"
+                        + "    onPremiseAPISuffix '/v1'\n"
+                        + "    api 'test-api'\n"
+                        + "    owner 'swagger-hub'\n"
+                        + "    version '1.0.0'\n"
+                        + "    outputFile '"
+                        + filePath
+                        + "'\n"
+                        + "}\n";
+
+        Files.write(buildFile.toPath(), buildFileContent.getBytes(UTF_8));
+
+        executeTask();
+
+        WireMock.verify(
+                getRequestedFor(urlEqualTo("/v1/apis/swagger-hub/test-api/1.0.0?resolved=false")));
+    }
+
     private BuildResult executeTask() {
         return GradleRunner.create()
                 .withPluginClasspath()
