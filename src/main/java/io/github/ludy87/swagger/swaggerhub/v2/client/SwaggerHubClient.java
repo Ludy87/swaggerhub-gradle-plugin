@@ -316,8 +316,8 @@ public class SwaggerHubClient {
      */
     private HttpUrl getDefaultVersionUrl(final SwaggerHubRequest swaggerHubRequest) {
         return getBaseUrl(swaggerHubRequest.getOwner(), swaggerHubRequest.getApi())
-                .addEncodedPathSegment("settings")
-                .addEncodedPathSegment("default")
+                .addPathSegment("settings")
+                .addPathSegment("default")
                 .build();
     }
 
